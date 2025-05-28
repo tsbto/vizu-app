@@ -10,9 +10,8 @@ server = app.server
 # Sidebar escura
 sidebar = html.Div(
     [
-        html.H2("Vizu Dash", className="display-4", style={"fontFamily": "Arial", "fontWeight": "bold"}),
+        html.H2("Vizu Dash App", className="display-4", style={"fontFamily": "Arial", "fontWeight": "bold"}),
         html.Hr(),
-        html.P("Navegue entre as páginas:", className="lead", style={"fontFamily": "Courier New"}),
         dbc.Nav(
             [
                 dbc.NavLink("Home", href="/", active="exact"),
