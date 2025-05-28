@@ -34,13 +34,30 @@ def layout():
 
     cards = []
     for key, label in [("bigquery", "BigQuery"), ("snowflake", "Snowflake"), ("csv", "CSV")]:
-        card = html.Div([
-            html.Img(src=icons[key], style={"width": "64px", "height": "64px"}),
-            html.Div(label, style={"marginTop": "10px", "fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "14px", "color": "#333"}),
-            dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, className="btn-pill"),
-            html.Div(id=f"dropdown-{key}-container")
-        ], className="card-custom", id=f"card-{key}")
-        cards.append(card)
+    card = html.Div([
+        # Título no topo à esquerda
+        html.Div(label.upper(), style={
+            "textAlign": "left",
+            "fontFamily": "Arial, sans-serif",
+            "fontWeight": "bold",
+            "fontSize": "9px",
+            "color": "#ffffff",
+            "marginBottom": "8px",
+        }),
+        # Imagem centralizada
+        html.Img(src=icons[key], style={
+            "width": "64px",
+            "height": "64px",
+            "display": "block",
+            "margin": "0 auto",
+        }),
+        # Botão "Conectar"
+        dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, className="btn-pill"),
+        # Dropdown container
+        html.Div(id=f"dropdown-{key}-container")
+    ], className="card-custom", id=f"card-{key}")
+    cards.append(card)
+
 
     return html.Div([
         html.H2("Home", style={"fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "20px", "color": "#eee", "marginBottom": "30px"}),
