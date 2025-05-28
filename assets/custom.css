@@ -42,7 +42,8 @@ body {
 
 .btn-pill {
     border-radius: 50px !important;
-    background-color: #ffffff !important;
+    background-color: #282828;
+    outline-color: #fff;
     color: #000000 !important;
     font-size: 12px;
 }
@@ -75,6 +76,6 @@ h3 {
 
 .sidebar-separator {
     border: none;
-    border-bottom: 1px solid #555;
+    border-bottom: 1px solid #767676;
     margin: 0 0 20px 0;
 }
