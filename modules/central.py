@@ -97,21 +97,19 @@ def layout():
 # Callbacks para o módulo
 def register_callbacks(app: dash.Dash):
     @app.callback(
-        Output("output-msg", "children"),
-        [
-            Input("btn-load-bq", "n_clicks"),
-            Input("btn-load-csv", "n_clicks")
-        ],
-        [
-            State("bq-project", "value"),
-            State("bq-dataset", "value"),
-            State("bq-table", "value"),
-            State("bq-json", "contents"),
-            State("upload-csv", "contents"),
-            State("upload-csv", "filename")
-        ],
-        prevent_initial_call=True
-    )
+    Output("output-msg", "children"),
+    [
+        Input("btn-load-bq", "n_clicks"),
+        Input("btn-load-csv", "n_clicks"),
+        State("bq-project", "value"),
+        State("bq-dataset", "value"),
+        State("bq-table", "value"),
+        State("bq-json", "contents"),
+        State("upload-csv", "contents"),
+        State("upload-csv", "filename")
+    ],
+    prevent_initial_call=True
+)
     def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
         print("Callback executado")
         ctx = dash.callback_context
