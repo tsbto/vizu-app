@@ -31,7 +31,7 @@ sidebar = html.Div(
         "bottom": 0,
         "width": "16rem",
         "padding": "2rem 1rem",
-        "backgroundColor": "#222222",
+        "backgroundColor": "#585858",
         "color": "white",
     },
 )
