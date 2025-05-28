@@ -64,7 +64,7 @@ def render_page_content(pathname):
 
 # Registra os callbacks de cada página
 home.register_callbacks(app)
-okrs.register_callbacks(app)
+okr.register_callbacks(app)
 insights.register_callbacks(app)
 querygpt.register_callbacks(app)
 dataframe.register_callbacks(app)
