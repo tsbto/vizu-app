@@ -1,7 +1,9 @@
-from dash import Dash, html, dcc, Input, Output, State, ctx
+from dash import Dash, html, dcc, Input, Output, State, ctx, no_update
 import dash_bootstrap_components as dbc
 from modules import central
 from data import data_loader
+import base64
+import io
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
 
@@ -83,9 +85,50 @@ app.layout = html.Div([
 
 # Callback para renderizar o conteúdo da página
 @app.callback(
-    Output("page-content", "children"),
-    Input("url", "pathname")
+    Output("stored-data", "data"),
+    [
+        Input("btn-load-bq", "n_clicks"),
+        Input("btn-load-csv", "n_clicks")
+    ],
+    [
+        State("bq-project", "value"),
+        State("bq-dataset", "value"),
+        State("bq-table", "value"),
+        State("bq-json", "contents"),
+        State("upload-csv", "contents"),
+        State("upload-csv", "filename"),
+    ],
+    prevent_initial_call=True,
 )
+def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
+    ctx = dash.callback_context
+
+    if not ctx.triggered:
+        return no_update
+    triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if triggered_id == "btn-load-csv":
+        if csv_contents is None:
+            return no_update
+
+        # csv_contents vem no formato data:<tipo>;base64,<conteúdo>
+        content_type, content_string = csv_contents.split(',')
+        decoded = base64.b64decode(content_string)
+        df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        # converte para JSON para guardar no dcc.Store
+        return df.to_json(date_format='iso', orient='split')
+
+    elif triggered_id == "btn-load-bq":
+        # lógica para carregar BigQuery e retornar JSON também
+        if None in (project, dataset, table, json_contents):
+            return no_update
+        # carregar dataframe do BigQuery (sua função)
+        # por simplicidade vamos usar placeholder
+        df = carregar_tabela_bigquery(project, dataset, table, json_contents.encode())
+        return df.to_json(date_format='iso', orient='split')
+
+    return no_update
+
 def render_page_content(pathname):
     if pathname == "/" or pathname == "/home":
         return home_content()
