@@ -1,33 +1,48 @@
 from dash import Dash, html, dcc, Input, Output
 import dash_bootstrap_components as dbc
 
+# Importa o layout e callbacks da página central (dataframe)
+from modules import central
+
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-server = app.server
+server = app.server  # para deploy
 
-# Componente para armazenar os dados carregados (JSON do dataframe)
+# Layout principal com navbar e container para páginas
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    dcc.Store(id='stored-data'),
+    dcc.Location(id="url", refresh=False),
 
-    dbc.Nav([
-        dbc.NavLink("Home", href="/", active="exact"),
-        dbc.NavLink("Data Frame", href="/dataframe", active="exact"),
-    ], pills=True, className="mb-4"),
+    dbc.NavbarSimple(
+        brand="Vizu Dash App",
+        color="primary",
+        dark=True,
+        children=[
+            dbc.NavItem(dbc.NavLink("Home", href="/")),
+            dbc.NavItem(dbc.NavLink("Data Frame", href="/dataframe")),
+        ],
+    ),
 
-    html.Div(id='page-content'),
+    dbc.Container(id="page-content", className="pt-4")
 ])
 
-@app.callback(
-    Output('page-content', 'children'),
-    Input('url', 'pathname')
-)
-def display_page(pathname):
-    if pathname == '/dataframe':
-        from modules.dataframe import layout, register_callbacks
-        register_callbacks(app)
-        return layout()
-    else:
-        return html.H3("Página inicial - Bem vindo!")
 
-if __name__ == '__main__':
+# Callback para renderizar as páginas baseado na url
+@app.callback(
+    Output("page-content", "children"),
+    Input("url", "pathname")
+)
+def render_page(pathname):
+    if pathname == "/dataframe":
+        return central.layout()
+    # página Home simples
+    return html.Div([
+        html.H1("Bem-vindo ao Vizu Dash!"),
+        html.P("Use o menu para navegar entre as páginas.")
+    ])
+
+
+# Registra os callbacks da página central
+central.register_callbacks(app)
+
+
+if __name__ == "__main__":
     app.run(debug=True)
