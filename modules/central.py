@@ -1,6 +1,6 @@
 # modules/central_conexoes_dash.py
 import dash
-from dash import html, dcc, Output, Input, State, ctx, dash_table 
+from dash import html, dcc, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 import pandas as pd
 from google.cloud import bigquery
@@ -91,60 +91,60 @@ def layout():
             ], width=6)
         ]),
         html.Hr(),
-        html.Div(id="output-msg", className="mt-3",style={"overflowX": "auto"})
+        html.Div(id="output-msg", className="mt-3")
     ])
 
 # Callbacks para o módulo
 def register_callbacks(app: dash.Dash):
     @app.callback(
-    Output("output-msg", "children"),
-    [
-        Input("btn-load-bq", "n_clicks"),
-        Input("btn-load-csv", "n_clicks"),
-        State("bq-project", "value"),
-        State("bq-dataset", "value"),
-        State("bq-table", "value"),
-        State("bq-json", "contents"),
-        State("upload-csv", "contents"),
-        State("upload-csv", "filename")
-    ],
-    prevent_initial_call=True
-)
-    def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
-        print("Callback executado")
-        ctx = dash.callback_context
+        Output("output-msg", "children"),
+        [
+            Input("btn-load-bq", "n_clicks"),
+            Input("btn-load-csv", "n_clicks")
+        ],
+        [
+            State("bq-project", "value"),
+            State("bq-dataset", "value"),
+            State("bq-table", "value"),
+            State("bq-json", "contents"),
+            State("upload-csv", "contents"),
+            State("upload-csv", "filename")
+        ],
+        prevent_initial_call=True
+    )
+    def load_data(bq_clicks, csv_clicks,
+                   project_id, dataset_id, table_id, json_contents,
+                   csv_contents, csv_filename):
+        trigger = ctx.triggered_id
+        if trigger == "btn-load-bq":
+            if not all([project_id, dataset_id, table_id, json_contents]):
+                return dbc.Alert("Preencha todos os campos e envie o JSON!", color="danger")
+            try:
+                import base64
+                content_string = json_contents.split(",")[1]
+                chave_json_bytes = base64.b64decode(content_string)
 
-        if not ctx.triggered:
-            return "Nenhum botão clicado."
-        else:
-            triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+                df = carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_bytes)
+                salvar_dataframe(df, f"{project_id}_{dataset_id}_{table_id}")
+                return dbc.Alert("Tabela carregada e salva com sucesso!", color="success")
+            except Exception as e:
+                return dbc.Alert(f"Erro: {e}", color="danger")
 
-            if triggered_id == "btn-load-bq":
-                # Aqui vamos implementar depois o BigQuery
-                return "BigQuery carregado!"
-
-            elif triggered_id == "btn-load-csv":
-                if csv_contents is None:
-                    return "Nenhum arquivo CSV enviado."
-
-                # Decodificar base64
-                content_type, content_string = csv_contents.split(',')
+        elif trigger == "btn-load-csv":
+            if csv_contents is None:
+                return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning")
+            try:
+                import io, base64
+                content_string = csv_contents.split(",")[1]
                 decoded = base64.b64decode(content_string)
-                try:
-                    # Ler CSV em DataFrame
-                    df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-                except Exception as e:
-                    return f"Erro ao processar CSV: {str(e)}"
+                df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
 
-                # Criar tabela para renderizar
-                return dash_table.DataTable(
-                    data=df.to_dict('records'),
-                    columns=[{"name": i, "id": i} for i in df.columns],
-                    page_size=10,
-                    style_table={'overflowX': 'auto'},
-                    style_cell={'textAlign': 'left'}
-                )
-            else:
-                return "Ação desconhecida."
+                if "data" in df.columns:
+                    df["data"] = pd.to_datetime(df["data"])
 
+                salvar_dataframe(df, csv_filename.replace(".csv", ""))
+                return dbc.Alert("CSV carregado e salvo com sucesso!", color="success")
+            except Exception as e:
+                return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger")
 
+        return dbc.Alert("Nenhuma ação realizada.", color="secondary")
