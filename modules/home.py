@@ -7,31 +7,29 @@ def layout():
         "width": "150px",
         "height": "150px",
         "borderRadius": "20px",
-        "backgroundColor": "#fff",
+        "backgroundColor": "#333",  # cinza escuro
         "display": "flex",
         "flexDirection": "column",
         "alignItems": "center",
         "justifyContent": "center",
         "cursor": "pointer",
-        "boxShadow": "0 4px 6px rgba(0,0,0,0.1)",
         "margin": "10px",
     }
     button_style = {
         "borderRadius": "20px",
-        "backgroundColor": "white",
+        "backgroundColor": "#fff",
         "color": "#000",
         "fontSize": "12px",
-        "fontWeight": "bold",
-        "padding": "8px 16px",
-        "border": "1px solid #ccc",
+        "padding": "6px 12px",
+        "border": "none",
         "marginTop": "10px",
-        "width": "130px",
+        "width": "110px",
     }
 
     icons = {
-        "bigquery": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_BigQuery_Logo.svg",
-        "snowflake": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Snowflake_Logo.svg",
-        "csv": "https://upload.wikimedia.org/wikipedia/commons/8/8f/CSV_icon.svg",
+        "bigquery": "/Users/tarsobarreto/Documents/vizu-dash/assets/bigquery.png",
+        "snowflake": "/Users/tarsobarreto/Documents/vizu-dash/assets/snowflake.png",
+        "csv": "/Users/tarsobarreto/Documents/vizu-dash/assets/csv.png",
     }
 
     cards = []

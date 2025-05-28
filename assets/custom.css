@@ -65,3 +65,9 @@ h3 {
 }
 
 /* Você pode adicionar mais customizações aqui */
+/* Página ativa em branco com texto preto */
+
+.nav-link.active {
+    background-color: #fff !important;
+    color: #000 !important;
+}
