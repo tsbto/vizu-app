@@ -27,9 +27,9 @@ def layout():
     }
 
     icons = {
-        "bigquery": "/Users/tarsobarreto/Documents/vizu-dash/assets/bigquery.png",
-        "snowflake": "/Users/tarsobarreto/Documents/vizu-dash/assets/snowflake.png",
-        "csv": "/Users/tarsobarreto/Documents/vizu-dash/assets/csv.png",
+        "bigquery": "/assets/bigquery.png",
+        "snowflake": "/assets/snowflake.png",
+        "csv": "/assets/csv.png",
     }
 
     cards = []
