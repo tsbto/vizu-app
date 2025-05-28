@@ -5,7 +5,7 @@ import base64
 import io
 import pandas as pd
 
-from modules import central, dataframe
+from modules import central
 from data import data_loader
 
 # Função de placeholder para carregar dados do BigQuery
@@ -173,6 +173,10 @@ def update_table(data_json):
 
 # Registra os callbacks do módulo Central
 central.register_callbacks(app)
+
+# Registra os callbacks do módulo DataFrame
+from modules import dataframe
+dataframe.register_callbacks(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
