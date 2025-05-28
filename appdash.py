@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, Input, Output
+from dash import Dash, html, dcc, Input, Output, State, ctx
 import dash_bootstrap_components as dbc
 from modules import central
 
@@ -94,43 +94,6 @@ app.layout = html.Div([
     ],
     prevent_initial_call=True
 )
-def load_data(bq_clicks, csv_clicks,
-               project_id, dataset_id, table_id, json_contents,
-               csv_contents, csv_filename):
-    trigger = ctx.triggered_id
-    if trigger == "btn-load-bq":
-        if not all([project_id, dataset_id, table_id, json_contents]):
-            return dbc.Alert("Preencha todos os campos e envie o JSON!", color="danger")
-        try:
-            import base64
-            content_string = json_contents.split(",")[1]
-            chave_json_bytes = base64.b64decode(content_string)
-
-            df = carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_bytes)
-            salvar_dataframe(df, f"{project_id}_{dataset_id}_{table_id}")
-            return dbc.Alert("Tabela carregada e salva com sucesso!", color="success")
-        except Exception as e:
-            return dbc.Alert(f"Erro: {e}", color="danger")
-
-    elif trigger == "btn-load-csv":
-        if csv_contents is None:
-            return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning")
-        try:
-            import io, base64
-            content_string = csv_contents.split(",")[1]
-            decoded = base64.b64decode(content_string)
-            df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
-
-            if "data" in df.columns:
-                df["data"] = pd.to_datetime(df["data"])
-
-            salvar_dataframe(df, csv_filename.replace(".csv", ""))
-            return dbc.Alert("CSV carregado e salvo com sucesso!", color="success")
-        except Exception as e:
-            return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger")
-
-    return dbc.Alert("Nenhuma ação realizada.", color="secondary")
-
 
 # Registrar callbacks do módulo central
 central.register_callbacks(app)
