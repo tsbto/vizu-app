@@ -5,7 +5,7 @@ import base64
 import io
 import pandas as pd
 
-from modules import central
+from modules import central, dataframe
 from data import data_loader
 
 # Função de placeholder para carregar dados do BigQuery
@@ -107,7 +107,7 @@ def render_page_content(pathname):
     elif pathname == "/okrs":
         return okrs_content()
     elif pathname == "/dataframe":
-        return dataframe_layout()
+        return dataframe.layout()
     elif pathname == "/insights":
         return insights_content()
     elif pathname == "/querygpt":
