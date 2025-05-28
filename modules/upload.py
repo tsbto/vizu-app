@@ -1,5 +1,3 @@
-# modules/import_csv.py
-
 import base64
 import io
 import pandas as pd
@@ -34,6 +32,7 @@ layout = html.Div([
             ),
             html.Div(id='output-csv-upload', style={"color": "white", "marginTop": "10px"}),
             html.Div(id='csv-table-container', style={"marginTop": "20px"}),
+            html.Div(id='summary-table-container', style={"marginTop": "20px"}),
         ], width=6),
 
         dbc.Col([
@@ -52,26 +51,34 @@ layout = html.Div([
 def register_callbacks(app, pg_engine):
     @app.callback(
         [Output('output-csv-upload', 'children'),
-         Output('csv-table-container', 'children')],
+         Output('csv-table-container', 'children'),
+         Output('summary-table-container', 'children')],
         Input('upload-csv', 'contents'),
         State('upload-csv', 'filename'),
         prevent_initial_call=True
     )
     def parse_csv(contents, filename):
         if contents is None:
-            return "", ""
+            return "", "", ""
         
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         try:
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
             
+            # Salvar no Postgres
+            df.to_sql('dados_upload', con=pg_engine, if_exists='replace', index=False)
+            
+            # Resumo estatístico
+            summary = df.describe().reset_index()
+
             info = html.Div([
-                html.P(f'Arquivo "{filename}" carregado com sucesso!'),
+                html.P(f'Arquivo "{filename}" carregado e salvo no Postgres com sucesso!'),
                 html.P(f'Total de linhas: {len(df)}'),
                 html.P(f'Colunas: {", ".join(df.columns)}'),
             ])
             
+            # Tabela com dados do CSV
             table = dash_table.DataTable(
                 data=df.to_dict('records'),
                 columns=[{'name': i, 'id': i} for i in df.columns],
@@ -89,12 +96,32 @@ def register_callbacks(app, pg_engine):
                     'fontWeight': 'bold'
                 }
             )
-            return info, table
+
+            # Tabela com resumo estatístico
+            summary_table = dash_table.DataTable(
+                data=summary.to_dict('records'),
+                columns=[{'name': i, 'id': i} for i in summary.columns],
+                style_table={'overflowX': 'auto', 'backgroundColor': '#333', 'color': '#fff'},
+                style_cell={
+                    'backgroundColor': '#333',
+                    'color': 'white',
+                    'textAlign': 'left',
+                    'minWidth': '100px', 'width': '150px', 'maxWidth': '200px',
+                    'whiteSpace': 'normal'
+                },
+                style_header={
+                    'backgroundColor': '#555',
+                    'fontWeight': 'bold'
+                }
+            )
+
+            return info, table, summary_table
+
         except Exception as e:
             return html.Div([
-                'Erro ao ler o arquivo CSV.',
+                'Erro ao processar o arquivo CSV.',
                 html.Pre(str(e))
-            ], style={"color": "red"}), ""
+            ], style={"color": "red"}), "", ""
 
     @app.callback(
         Output('output-bq-status', 'children'),
