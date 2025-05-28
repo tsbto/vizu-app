@@ -60,7 +60,9 @@ def register_callbacks(app, pg_engine):
     def parse_csv(contents, filename):
         if contents is None:
             return "", "", ""
-        
+        if pg_engine is not None:
+            df.to_sql("nome_da_tabela", pg_engine, if_exists="replace", index=False)
+
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         try:

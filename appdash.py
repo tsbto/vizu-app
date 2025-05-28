@@ -2,7 +2,9 @@ import dash
 from dash import html, dcc, Input, Output
 import dash_bootstrap_components as dbc
 from modules import home, okr, insights, querygpt, upload  # já importou
+from sqlalchemy import create_engine
 
+pg_engine = create_engine("postgresql://postgres@localhost:5432/vizu")
 app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.DARKLY])
 
 SIDEBAR_STYLE = {
@@ -72,7 +74,7 @@ def render_page_content(pathname):
 
 # Registrar callbacks
 home.register_callbacks(app)
-upload.register_callbacks(app, pg_engine=None)  # passe a engine do Postgres aqui se quiser usar
+upload.register_callbacks(app, pg_engine=pg_engine)  # passe a engine do Postgres aqui se quiser usar
 
 if __name__ == "__main__":
     app.run(debug=True)
