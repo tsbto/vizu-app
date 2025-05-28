@@ -1,11 +1,10 @@
 import dash
 from dash import html, dcc, Input, Output
 import dash_bootstrap_components as dbc
-from modules import home
+from modules import home, okr, insights, querygpt, upload  # já importou
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.DARKLY])
 
-# Sidebar com hover cinza escuro
 SIDEBAR_STYLE = {
     "position": "fixed",
     "top": 0,
@@ -33,6 +32,7 @@ sidebar = html.Div(
                 dbc.NavLink("OKRs", href="/okrs", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
                 dbc.NavLink("Insights", href="/insights", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
                 dbc.NavLink("QueryGPT", href="/querygpt", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
+                dbc.NavLink("Upload CSV", href="/upload", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),  # NOVA PÁGINA
             ],
             vertical=True,
             pills=True,
@@ -49,7 +49,6 @@ app.layout = html.Div([
     content
 ])
 
-# Callback para renderizar páginas
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
@@ -60,16 +59,20 @@ def render_page_content(pathname):
         return html.H3("Página Insights - em construção...", style={"color": "#eee"})
     elif pathname == "/querygpt":
         return html.H3("Página QueryGPT - em construção...", style={"color": "#eee"})
-    return dbc.Jumbotron(
-        [
-            html.H1("404: Not found", className="text-danger"),
-            html.Hr(),
-            html.P(f"A página {pathname} não existe."),
-        ]
-    )
+    elif pathname == "/upload":  # ROTA NOVA
+        return upload.layout
+    else:
+        return dbc.Jumbotron(
+            [
+                html.H1("404: Not found", className="text-danger"),
+                html.Hr(),
+                html.P(f"A página {pathname} não existe."),
+            ]
+        )
 
-# Registrar callbacks da home
+# Registrar callbacks
 home.register_callbacks(app)
+upload.register_callbacks(app, pg_engine=None)  # passe a engine do Postgres aqui se quiser usar
 
 if __name__ == "__main__":
     app.run(debug=True)

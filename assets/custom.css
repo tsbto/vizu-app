@@ -106,6 +106,7 @@ h3 {
 
 .sidebar-separator {
     border: none;
-    border-bottom: 1px solid #767676;
+    border-bottom: 2px solid #767676;
     margin: 0 0 20px 0;
+    margin-bottom: 50px;
 }
