@@ -52,7 +52,7 @@ def layout():
                 "margin": "0 auto",
             }),
             # Botão "Conectar"
-            dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, className="btn-pill"),
+            dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, className="btn-pill", style={"marginTop": "10px", "width": "100%"}),
             # Dropdown container
             html.Div(id=f"dropdown-{key}-container")
         ], className="card-custom", id=f"card-{key}")
