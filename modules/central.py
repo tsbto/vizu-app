@@ -98,7 +98,7 @@ def layout():
 def register_callbacks(app: dash.Dash):
     @app.callback(
         [Output("output-msg", "children"),
-         Output("stored-data", "data")],
+         ],
         [
             Input("btn-load-bq", "n_clicks"),
             Input("btn-load-csv", "n_clicks")
