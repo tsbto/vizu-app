@@ -1,5 +1,6 @@
 from dash import Dash, html, dcc, Input, Output, State, no_update, ctx
 import dash_bootstrap_components as dbc
+import dash_table
 import base64
 import io
 import pandas as pd
@@ -76,6 +77,13 @@ def dataframe_content():
     return html.Div([
         html.H2("Data Frame", style={"fontWeight": "bold", "fontFamily": "Arial, sans-serif"}),
         html.P("Aqui vai o conteúdo do módulo Data Frame."),
+        dash_table.DataTable(
+            id="data-table",
+            style_table={'overflowX': 'auto'},
+            style_cell={'textAlign': 'left', 'padding': '5px'},
+            style_header={'backgroundColor': 'rgb(30, 30, 30)', 'color': 'white', 'fontWeight': 'bold'},
+            style_data={'backgroundColor': 'rgb(50, 50, 50)', 'color': 'white'},
+        ),
     ])
 
 def insights_content():
@@ -148,6 +156,21 @@ def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_cont
         return df.to_json(date_format='iso', orient='split')
 
     return no_update
+
+# Callback para atualizar a tabela DataFrame na página /dataframe
+@app.callback(
+    Output("data-table", "data"),
+    Output("data-table", "columns"),
+    Input("stored-data", "data"),
+)
+def update_table(data_json):
+    if data_json is None:
+        return [], []
+
+    df = pd.read_json(data_json, orient='split')
+    data = df.to_dict("records")
+    columns = [{"name": i, "id": i} for i in df.columns]
+    return data, columns
 
 # Registra os callbacks do módulo Central
 central.register_callbacks(app)
