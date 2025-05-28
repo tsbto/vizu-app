@@ -73,11 +73,36 @@ def querygpt_content():
         html.P("Aqui vai o conteúdo do módulo Query GPT."),
     ])
 
+# Layout principal
 app.layout = html.Div([
     dcc.Location(id="url"),
     sidebar,
     content,
 ])
+
+# Callback para renderizar o conteúdo da página
+@app.callback(
+    Output("page-content", "children"),
+    Input("url", "pathname")
+)
+def render_page_content(pathname):
+    if pathname == "/" or pathname == "/home":
+        return home_content()
+    elif pathname == "/central":
+        return central.layout  # Supondo que central.layout esteja definido
+    elif pathname == "/okrs":
+        return okrs_content()
+    elif pathname == "/dataframe":
+        return dataframe_content()
+    elif pathname == "/insights":
+        return insights_content()
+    elif pathname == "/querygpt":
+        return querygpt_content()
+    else:
+        return html.Div([
+            html.H1("404: Página não encontrada", style={"color": "red"}),
+            html.P(f"O caminho {pathname} não existe."),
+        ])
 
 if __name__ == "__main__":
     app.run(debug=True)
