@@ -5,7 +5,7 @@ from data import data_loader
 import base64
 import io
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
+app = Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.DARKLY])
 
 # Sidebar com menu vertical e estilo
 sidebar = html.Div(
