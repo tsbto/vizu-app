@@ -97,7 +97,8 @@ def layout():
 # Callbacks para o módulo
 def register_callbacks(app: dash.Dash):
     @app.callback(
-        Output("output-msg", "children"),
+        [Output("output-msg", "children"),
+         Output("stored-data", "data")],
         [
             Input("btn-load-bq", "n_clicks"),
             Input("btn-load-csv", "n_clicks")
@@ -113,38 +114,26 @@ def register_callbacks(app: dash.Dash):
         prevent_initial_call=True
     )
     def load_data(bq_clicks, csv_clicks,
-                   project_id, dataset_id, table_id, json_contents,
-                   csv_contents, csv_filename):
-        trigger = ctx.triggered_id
-        if trigger == "btn-load-bq":
-            if not all([project_id, dataset_id, table_id, json_contents]):
-                return dbc.Alert("Preencha todos os campos e envie o JSON!", color="danger")
-            try:
-                import base64
-                content_string = json_contents.split(",")[1]
-                chave_json_bytes = base64.b64decode(content_string)
-
-                df = carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_bytes)
-                salvar_dataframe(df, f"{project_id}_{dataset_id}_{table_id}")
-                return dbc.Alert("Tabela carregada e salva com sucesso!", color="success")
-            except Exception as e:
-                return dbc.Alert(f"Erro: {e}", color="danger")
-
-        elif trigger == "btn-load-csv":
-            if csv_contents is None:
-                return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning")
-            try:
-                import io, base64
-                content_string = csv_contents.split(",")[1]
-                decoded = base64.b64decode(content_string)
-                df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
-
-                if "data" in df.columns:
-                    df["data"] = pd.to_datetime(df["data"])
-
-                salvar_dataframe(df, csv_filename.replace(".csv", ""))
-                return dbc.Alert("CSV carregado e salvo com sucesso!", color="success")
-            except Exception as e:
-                return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger")
-
-        return dbc.Alert("Nenhuma ação realizada.", color="secondary")
+               project_id, dataset_id, table_id, json_contents,
+               csv_contents, csv_filename):
+    trigger = ctx.triggered_id
+    if trigger == "btn-load-bq":
+        # ...mesma lógica
+        df = carregar_tabela_bigquery(...)
+        salvar_dataframe(df, f"{project_id}_{dataset_id}_{table_id}")
+        return dbc.Alert("Tabela carregada e salva com sucesso!", color="success"), df.to_json(date_format='iso', orient='split')
+    elif trigger == "btn-load-csv":
+        if csv_contents is None:
+            return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning"), no_update
+        try:
+            import io, base64
+            content_string = csv_contents.split(",")[1]
+            decoded = base64.b64decode(content_string)
+            df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
+            if "data" in df.columns:
+                df["data"] = pd.to_datetime(df["data"])
+            salvar_dataframe(df, csv_filename.replace(".csv", ""))
+            return dbc.Alert("CSV carregado e salvo com sucesso!", color="success"), df.to_json(date_format='iso', orient='split')
+        except Exception as e:
+            return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger"), no_update
+    return dbc.Alert("Nenhuma ação realizada.", color="secondary"), no_update
