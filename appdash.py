@@ -2,7 +2,7 @@ from dash import Dash, html, dcc, Input, Output
 import dash_bootstrap_components as dbc
 
 # Importa páginas
-from modules import home, okrs, insights, querygpt, dataframe
+from modules import home, okr, insights, querygpt, dataframe
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP], suppress_callback_exceptions=True)
 server = app.server
@@ -52,7 +52,7 @@ def render_page_content(pathname):
     if pathname == "/":
         return home.layout()
     elif pathname == "/okrs":
-        return okrs.layout()
+        return okr.layout()
     elif pathname == "/insights":
         return insights.layout()
     elif pathname == "/querygpt":
