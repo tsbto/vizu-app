@@ -1,4 +1,4 @@
-from dash import html, dcc, Input, Output, callback
+from dash import html, dcc, Input, Output, callback 
 import dash_bootstrap_components as dbc
 import dash
 
@@ -37,9 +37,9 @@ def layout():
         card = html.Div([
             html.Img(src=icons[key], style={"width": "64px", "height": "64px"}),
             html.Div(label, style={"marginTop": "10px", "fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "14px", "color": "#333"}),
-            dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, style=button_style),
+            dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, className="btn-pill"),
             html.Div(id=f"dropdown-{key}-container")
-        ], style=card_style, id=f"card-{key}")
+        ], className="card-custom", id=f"card-{key}")
         cards.append(card)
 
     return html.Div([
@@ -71,5 +71,35 @@ def register_callbacks(app):
                 outputs.append(dropdown)
             else:
                 outputs.append("")
-
+        
         return outputs
+    
+    @app.callback(
+        Output("btn-bigquery", "className"),
+        Input("btn-bigquery", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def toggle_bigquery_class(n_clicks):
+        if n_clicks and n_clicks % 2 != 0:
+            return "btn-pill active"
+        return "btn-pill"
+
+    @app.callback(
+        Output("btn-snowflake", "className"),
+        Input("btn-snowflake", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def toggle_snowflake_class(n_clicks):
+        if n_clicks and n_clicks % 2 != 0:
+            return "btn-pill active"
+        return "btn-pill"
+
+    @app.callback(
+        Output("btn-csv", "className"),
+        Input("btn-csv", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def toggle_csv_class(n_clicks):
+        if n_clicks and n_clicks % 2 != 0:
+            return "btn-pill active"
+        return "btn-pill"
