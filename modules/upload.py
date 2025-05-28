@@ -64,14 +64,27 @@ def register_callbacks(app, pg_engine):
         if contents is None:
             return "", "", ""
         if pg_engine is not None:
-            df.to_sql("nome_da_tabela", pg_engine, if_exists="replace", index=False)
+            try:
+                df.to_sql("nome_da_tabela", pg_engine, if_exists="replace", index=False)
+            except Exception as e:
+                return html.Div([
+                    'Erro ao salvar os dados no banco de dados Postgres.',
+                    html.Pre(str(e))
+                ], style={"color": "red"}), "", ""
+        else:
+            return html.Div([
+                'Conexão com o banco de dados Postgres não está configurada.'
+            ], style={"color": "red"}), "", ""
 
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         try:
             try:
-                df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
-            except UnicodeDecodeError:
+            # Resumo estatístico
+            if df.select_dtypes(include=['number']).empty:
+                summary = pd.DataFrame({"Aviso": ["Nenhuma coluna numérica encontrada para gerar resumo estatístico."]})
+            else:
+                summary = df.describe().reset_index()
                 return html.Div([
                     'Erro ao processar o arquivo CSV. Verifique a codificação do arquivo.',
                     html.P('Tente especificar a codificação correta no campo abaixo.')
