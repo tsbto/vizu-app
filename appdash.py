@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from modules import home, okr, insights, querygpt, upload  # já importou
 from sqlalchemy import create_engine
 
-pg_engine = create_engine("postgresql://postgres@localhost:5432/vizu")
+pg_engine = create_engine("postgresql://tarsobarreto@localhost:5432/vizu")
 app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.DARKLY])
 
 SIDEBAR_STYLE = {
