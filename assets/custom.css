@@ -1,0 +1,47 @@
+/* custom.css */
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar-title {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar-link {
+    color: #ffffff !important;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+.sidebar-link:hover {
+    background-color: #333333 !important;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+}
+
+.card-text {
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+}
+
+.btn-pill {
+    border-radius: 50px !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12px;
+}
