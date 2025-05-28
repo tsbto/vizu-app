@@ -63,45 +63,36 @@ def register_callbacks(app, pg_engine):
         encoding = encoding or 'utf-8'
         if contents is None:
             return "", "", ""
-        if pg_engine is not None:
-            try:
-                df.to_sql("nome_da_tabela", pg_engine, if_exists="replace", index=False)
-            except Exception as e:
-                return html.Div([
-                    'Erro ao salvar os dados no banco de dados Postgres.',
-                    html.Pre(str(e))
-                ], style={"color": "red"}), "", ""
-        else:
+        if pg_engine is None:
             return html.Div([
                 'Conexão com o banco de dados Postgres não está configurada.'
             ], style={"color": "red"}), "", ""
 
-        content_type, content_string = contents.split(',')
-        decoded = base64.b64decode(content_string)
         try:
-            try:
+            # Decodificar CSV
+            _, content_string = contents.split(',')
+            decoded = base64.b64decode(content_string)
+
+            # Ler CSV em chunks para lidar com arquivos grandes
+            chunk_iter = pd.read_csv(io.StringIO(decoded.decode(encoding)), chunksize=10000)
+            df = pd.concat(chunk_iter, ignore_index=True)
+
+            # Salvar no Postgres
+            df.to_sql('dados_upload', con=pg_engine, if_exists='replace', index=False)
+
             # Resumo estatístico
             if df.select_dtypes(include=['number']).empty:
                 summary = pd.DataFrame({"Aviso": ["Nenhuma coluna numérica encontrada para gerar resumo estatístico."]})
             else:
                 summary = df.describe().reset_index()
-                return html.Div([
-                    'Erro ao processar o arquivo CSV. Verifique a codificação do arquivo.',
-                    html.P('Tente especificar a codificação correta no campo abaixo.')
-                ], style={"color": "red"}), "", ""
-            
-            # Salvar no Postgres
-            df.to_sql('dados_upload', con=pg_engine, if_exists='replace', index=False)
-            
-            # Resumo estatístico
-            summary = df.describe().reset_index()
 
+            # Informações gerais
             info = html.Div([
                 html.P(f'Arquivo "{filename}" carregado e salvo no Postgres com sucesso!'),
                 html.P(f'Total de linhas: {len(df)}'),
                 html.P(f'Colunas: {", ".join(df.columns)}'),
             ])
-            
+
             # Tabela com dados do CSV
             table = dash_table.DataTable(
                 data=df.to_dict('records'),
