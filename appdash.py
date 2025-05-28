@@ -75,7 +75,8 @@ def querygpt_content():
 
 # Layout principal
 app.layout = html.Div([
-    dcc.Location(id="url"),
+    dcc.Location(id="url", refresh=False),
+    dcc.Store(id="stored-data"),  # armazena os dados CSV/BQ
     sidebar,
     content,
 ])
