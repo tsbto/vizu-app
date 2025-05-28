@@ -22,7 +22,7 @@ def layout():
         "fontSize": "12px",
         "padding": "6px 12px",
         "border": "none",
-        "marginTop": "10px",
+        "marginTop": "30px",
         "width": "110px",
     }
 
