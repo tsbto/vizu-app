@@ -89,7 +89,7 @@ def render_page_content(pathname):
     if pathname == "/" or pathname == "/home":
         return home_content()
     elif pathname == "/central":
-        return central.layout  # Supondo que central.layout esteja definido
+        return central.layout()  # Supondo que central.layout esteja definido
     elif pathname == "/okrs":
         return okrs_content()
     elif pathname == "/dataframe":
