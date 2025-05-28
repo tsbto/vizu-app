@@ -1,15 +1,16 @@
-from dash import Dash, dcc, html
+from dash import Dash
 import dash_bootstrap_components as dbc
-from modules import central
+from modules import central, dataframe
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 app.layout = html.Div([
-    dcc.Store(id="stored-data"),
-    central.layout()
+    central.layout(),
+    dataframe.layout(),
 ])
 
 central.register_callbacks(app)
+dataframe.register_callbacks(app)
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run(debug=True)
