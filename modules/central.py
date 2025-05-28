@@ -1,15 +1,15 @@
-# modules/central_conexoes_dash.py
+# modules/central.py
 import dash
-from dash import html, dcc, Output, Input, State, ctx
+from dash import html, dcc, Output, Input, State, ctx, no_update
 import dash_bootstrap_components as dbc
 import pandas as pd
-from google.cloud import bigquery
-import tempfile
+import io, base64
 from modules.db import get_engine
-from data import data_loader
 
-# Função para carregar dados do BigQuery
 def carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_file):
+    import tempfile
+    from google.cloud import bigquery
+
     with tempfile.NamedTemporaryFile(delete=False) as temp_cred_file:
         temp_cred_file.write(chave_json_file)
         temp_cred_file.flush()
@@ -23,12 +23,10 @@ def carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_file):
 
     return df
 
-# Função para salvar DataFrame no Postgres
 def salvar_dataframe(df: pd.DataFrame, nome_tabela: str):
     engine = get_engine()
     df.to_sql(nome_tabela, engine, index=False, if_exists='replace')
 
-# Layout do módulo
 def layout():
     return html.Div([
         html.H2("🔌 Central de Conexões", className="mb-4"),
@@ -94,11 +92,9 @@ def layout():
         html.Div(id="output-msg", className="mt-3")
     ])
 
-# Callbacks para o módulo
 def register_callbacks(app: dash.Dash):
     @app.callback(
-        [Output("output-msg", "children"),
-         ],
+        [Output("output-msg", "children"), Output("stored-data", "data")],
         [
             Input("btn-load-bq", "n_clicks"),
             Input("btn-load-csv", "n_clicks")
@@ -119,23 +115,25 @@ def register_callbacks(app: dash.Dash):
         trigger = ctx.triggered_id
         if trigger == "btn-load-bq":
             if not all([project_id, dataset_id, table_id, json_contents]):
-                return dbc.Alert("Preencha todos os campos e envie o JSON!", color="danger"), None
+                return dbc.Alert("Preencha todos os campos e envie o JSON!", color="danger"), no_update
             try:
-                import base64
                 content_string = json_contents.split(",")[1]
                 chave_json_bytes = base64.b64decode(content_string)
 
                 df = carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_bytes)
                 salvar_dataframe(df, f"{project_id}_{dataset_id}_{table_id}")
-                return dbc.Alert("Tabela carregada e salva com sucesso!", color="success"), df.to_json(date_format='iso', orient='split')
+
+                return (
+                    dbc.Alert("Tabela carregada e salva com sucesso!", color="success"),
+                    df.to_json(date_format="iso", orient="split")
+                )
             except Exception as e:
-                return dbc.Alert(f"Erro: {e}", color="danger"), None
+                return dbc.Alert(f"Erro: {e}", color="danger"), no_update
 
         elif trigger == "btn-load-csv":
             if csv_contents is None:
-                return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning"), None
+                return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning"), no_update
             try:
-                import io, base64
                 content_string = csv_contents.split(",")[1]
                 decoded = base64.b64decode(content_string)
                 df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
@@ -144,8 +142,12 @@ def register_callbacks(app: dash.Dash):
                     df["data"] = pd.to_datetime(df["data"])
 
                 salvar_dataframe(df, csv_filename.replace(".csv", ""))
-                return dbc.Alert("CSV carregado e salvo com sucesso!", color="success"), df.to_json(date_format='iso', orient='split')
-            except Exception as e:
-                return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger"), None
 
-        return dbc.Alert("Nenhuma ação realizada.", color="secondary"), None
+                return (
+                    dbc.Alert("CSV carregado e salvo com sucesso!", color="success"),
+                    df.to_json(date_format="iso", orient="split")
+                )
+            except Exception as e:
+                return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger"), no_update
+
+        return dbc.Alert("Nenhuma ação realizada.", color="secondary"), no_update
