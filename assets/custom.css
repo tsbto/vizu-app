@@ -45,3 +45,23 @@ body {
     color: #000000 !important;
     font-size: 12px;
 }
+/* Sidebar hover cinza escuro */
+.nav-link:hover {
+    background-color: #333 !important;
+    color: #eee !important;
+}
+
+/* Fonte menores */
+h2 {
+    font-size: 20px !important;
+}
+
+h3 {
+    font-size: 18px !important;
+}
+
+.nav-link {
+    font-size: 14px !important;
+}
+
+/* Você pode adicionar mais customizações aqui */

@@ -1,43 +1,46 @@
-from dash import Dash, html, dcc, Input, Output
+import dash
+from dash import html, dcc, Input, Output
 import dash_bootstrap_components as dbc
+from modules import home
 
-# Importa páginas
-from modules import home, okr, insights, querygpt, dataframe
+app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.DARKLY])
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP], suppress_callback_exceptions=True)
-server = app.server
+# Sidebar com hover cinza escuro
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "220px",
+    "padding": "20px",
+    "backgroundColor": "#111",
+    "color": "#eee",
+}
 
-# Sidebar escura
+CONTENT_STYLE = {
+    "marginLeft": "240px",
+    "marginTop": "20px",
+    "padding": "20px",
+}
+
 sidebar = html.Div(
     [
-        html.H2("Vizu Dash App", className="display-4", style={"fontFamily": "Arial", "fontWeight": "bold"}),
-        html.Hr(),
+        html.H2("Vizu Dash", style={"fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "18px"}),
         dbc.Nav(
             [
-                dbc.NavLink("Home", href="/", active="exact"),
-                dbc.NavLink("OKRs", href="/okrs", active="exact"),
-                dbc.NavLink("Insights", href="/insights", active="exact"),
-                dbc.NavLink("QueryGPT", href="/querygpt", active="exact"),
-                dbc.NavLink("DataFrame", href="/dataframe", active="exact"),
+                dbc.NavLink("Home", href="/", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
+                dbc.NavLink("OKRs", href="/okrs", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
+                dbc.NavLink("Insights", href="/insights", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
+                dbc.NavLink("QueryGPT", href="/querygpt", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
             ],
             vertical=True,
             pills=True,
         ),
     ],
-    style={
-        "position": "fixed",
-        "top": 0,
-        "left": 0,
-        "bottom": 0,
-        "width": "16rem",
-        "padding": "2rem 1rem",
-        "backgroundColor": "#000000",
-        "color": "white",
-    },
+    style=SIDEBAR_STYLE,
 )
 
-# Layout principal com sidebar e conteúdo
-content = html.Div(id="page-content", style={"marginLeft": "18rem", "marginRight": "2rem", "padding": "2rem 1rem"})
+content = html.Div(id="page-content", style=CONTENT_STYLE)
 
 app.layout = html.Div([
     dcc.Location(id="url"),
@@ -45,28 +48,27 @@ app.layout = html.Div([
     content
 ])
 
-
-@app.callback(Output("page-content", "children"), Input("url", "pathname"))
+# Callback para renderizar páginas
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
         return home.layout()
     elif pathname == "/okrs":
-        return okr.layout()
+        return html.H3("Página OKRs - em construção...", style={"color": "#eee"})
     elif pathname == "/insights":
-        return insights.layout()
+        return html.H3("Página Insights - em construção...", style={"color": "#eee"})
     elif pathname == "/querygpt":
-        return querygpt.layout()
-    elif pathname == "/dataframe":
-        return dataframe.layout()
-    return html.H1("404: Página não encontrada", className="text-danger", style={"fontFamily": "Courier New"})
+        return html.H3("Página QueryGPT - em construção...", style={"color": "#eee"})
+    return dbc.Jumbotron(
+        [
+            html.H1("404: Not found", className="text-danger"),
+            html.Hr(),
+            html.P(f"A página {pathname} não existe."),
+        ]
+    )
 
-
-# Registra os callbacks de cada página
+# Registrar callbacks da home
 home.register_callbacks(app)
-okr.register_callbacks(app)
-insights.register_callbacks(app)
-querygpt.register_callbacks(app)
-dataframe.register_callbacks(app)
 
 if __name__ == "__main__":
     app.run(debug=True)

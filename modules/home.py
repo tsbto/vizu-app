@@ -1,85 +1,77 @@
-from dash import html, dcc
+from dash import html, dcc, Input, Output, callback
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+import dash
 
 def layout():
-    return html.Div(
-        [
-            html.H2("Home", className="page-title"),
-            html.P("Escolha a fonte de dados:", className="card-text"),
-            dbc.Row(
-                [
-                    # Card 1 - BigQuery
-                    dbc.Col(
-                        dbc.Card(
-                            [
-                                html.Img(
-                                    src="https://cdn.iconscout.com/icon/free/png-256/google-bigquery-3629288-3029137.png",
-                                    style={"height": "50px", "margin": "10px auto", "display": "block"}
-                                ),
-                                html.H5("BigQuery", className="card-title text-center"),
-                                dbc.Button(
-                                    "Conectar",
-                                    id="btn-bigquery",
-                                    className="btn-pill",
-                                    color="light",
-                                    style={"margin": "10px auto", "display": "block"}
-                                )
-                            ],
-                            className="p-3 text-center",
-                            style={"backgroundColor": "#1e1e1e", "color": "#fff", "borderRadius": "8px"},
-                        ),
-                        width=4,
-                    ),
+    card_style = {
+        "width": "150px",
+        "height": "150px",
+        "borderRadius": "20px",
+        "backgroundColor": "#fff",
+        "display": "flex",
+        "flexDirection": "column",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "cursor": "pointer",
+        "boxShadow": "0 4px 6px rgba(0,0,0,0.1)",
+        "margin": "10px",
+    }
+    button_style = {
+        "borderRadius": "20px",
+        "backgroundColor": "white",
+        "color": "#000",
+        "fontSize": "12px",
+        "fontWeight": "bold",
+        "padding": "8px 16px",
+        "border": "1px solid #ccc",
+        "marginTop": "10px",
+        "width": "130px",
+    }
 
-                    # Card 2 - Snowflake
-                    dbc.Col(
-                        dbc.Card(
-                            [
-                                html.Img(
-                                    src="https://cdn-icons-png.flaticon.com/512/5969/5969174.png",
-                                    style={"height": "50px", "margin": "10px auto", "display": "block"}
-                                ),
-                                html.H5("Snowflake", className="card-title text-center"),
-                                dbc.Button(
-                                    "Conectar",
-                                    id="btn-snowflake",
-                                    className="btn-pill",
-                                    color="light",
-                                    style={"margin": "10px auto", "display": "block"}
-                                )
-                            ],
-                            className="p-3 text-center",
-                            style={"backgroundColor": "#1e1e1e", "color": "#fff", "borderRadius": "8px"},
-                        ),
-                        width=4,
-                    ),
+    icons = {
+        "bigquery": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Google_BigQuery_Logo.svg",
+        "snowflake": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Snowflake_Logo.svg",
+        "csv": "https://upload.wikimedia.org/wikipedia/commons/8/8f/CSV_icon.svg",
+    }
 
-                    # Card 3 - CSV
-                    dbc.Col(
-                        dbc.Card(
-                            [
-                                html.Img(
-                                    src="https://cdn-icons-png.flaticon.com/512/337/337946.png",
-                                    style={"height": "50px", "margin": "10px auto", "display": "block"}
-                                ),
-                                html.H5("CSV", className="card-title text-center"),
-                                dbc.Button(
-                                    "Conectar",
-                                    id="btn-csv",
-                                    className="btn-pill",
-                                    color="light",
-                                    style={"margin": "10px auto", "display": "block"}
-                                )
-                            ],
-                            className="p-3 text-center",
-                            style={"backgroundColor": "#1e1e1e", "color": "#fff", "borderRadius": "8px"},
-                        ),
-                        width=4,
-                    ),
-                ],
-                className="mt-4",
-            ),
-        ],
-        style={"padding": "20px"},
+    cards = []
+    for key, label in [("bigquery", "BigQuery"), ("snowflake", "Snowflake"), ("csv", "CSV")]:
+        card = html.Div([
+            html.Img(src=icons[key], style={"width": "64px", "height": "64px"}),
+            html.Div(label, style={"marginTop": "10px", "fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "14px", "color": "#333"}),
+            dbc.Button("Inserir credenciais", id=f"btn-{key}", n_clicks=0, style=button_style),
+            html.Div(id=f"dropdown-{key}-container")
+        ], style=card_style, id=f"card-{key}")
+        cards.append(card)
+
+    return html.Div([
+        html.H2("Home", style={"fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "20px", "color": "#eee", "marginBottom": "30px"}),
+        html.Div(cards, style={"display": "flex", "justifyContent": "center"}),
+    ], style={"padding": "30px"})
+
+def register_callbacks(app):
+    @app.callback(
+        [Output(f"dropdown-{key}-container", "children") for key in ["bigquery", "snowflake", "csv"]],
+        [Input(f"btn-{key}", "n_clicks") for key in ["bigquery", "snowflake", "csv"]],
     )
+    def toggle_dropdown(*btn_clicks):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return [""] * 3
+
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        outputs = []
+        for key in ["bigquery", "snowflake", "csv"]:
+            if f"btn-{key}" == button_id and btn_clicks[["bigquery", "snowflake", "csv"].index(key)] % 2 == 1:
+                dropdown = html.Div([
+                    dcc.Input(placeholder="Usuário", type="text", style={"marginBottom": "8px", "width": "100%"}),
+                    dcc.Input(placeholder="Senha", type="password", style={"marginBottom": "8px", "width": "100%"}),
+                    dcc.Input(placeholder="Projeto/Database", type="text", style={"marginBottom": "8px", "width": "100%"}),
+                    dbc.Button("Salvar", color="primary", size="sm", style={"width": "100%"}),
+                ], style={"marginTop": "10px"})
+                outputs.append(dropdown)
+            else:
+                outputs.append("")
+
+        return outputs
