@@ -33,7 +33,7 @@ def layout():
                 "fontSize": "9px",
                 "color": "#ffffff",
                 "marginBottom": "8px",
-                "marginLeft": "10px",
+                "marginLeft": "100px",
                 "width": "100%",  # força o alinhamento à esquerda
             }),
             # Imagem centralizada
