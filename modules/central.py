@@ -97,35 +97,36 @@ def layout():
 # Callbacks para o módulo
 def register_callbacks(app: dash.Dash):
     @app.callback(
-    Output("output-msg", "children"),
-    [
-        Input("btn-load-bq", "n_clicks"),
-        Input("btn-load-csv", "n_clicks")
-    ],
-    [
-        State("bq-project", "value"),
-        State("bq-dataset", "value"),
-        State("bq-table", "value"),
-        State("bq-json", "contents"),
-        State("upload-csv", "contents"),
-        State("upload-csv", "filename")
-    ],
-    prevent_initial_call=True
-)
-def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
-    ctx = dash.callback_context
+        Output("output-msg", "children"),
+        [
+            Input("btn-load-bq", "n_clicks"),
+            Input("btn-load-csv", "n_clicks")
+        ],
+        [
+            State("bq-project", "value"),
+            State("bq-dataset", "value"),
+            State("bq-table", "value"),
+            State("bq-json", "contents"),
+            State("upload-csv", "contents"),
+            State("upload-csv", "filename")
+        ],
+        prevent_initial_call=True
+    )
+    def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
+        ctx = dash.callback_context
 
-    if not ctx.triggered:
-        return "Nenhum botão clicado."
-    else:
-        triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-        if triggered_id == "btn-load-bq":
-            # Lógica de carregar BigQuery
-            return "BigQuery carregado!"
-        elif triggered_id == "btn-load-csv":
-            # Lógica de carregar CSV
-            return "CSV carregado!"
+        if not ctx.triggered:
+            return "Nenhum botão clicado."
         else:
-            return "Ação desconhecida."
+            triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+            if triggered_id == "btn-load-bq":
+                # Lógica de carregar BigQuery
+                return "BigQuery carregado!"
+            elif triggered_id == "btn-load-csv":
+                # Lógica de carregar CSV
+                return "CSV carregado!"
+            else:
+                return "Ação desconhecida."
+
 
