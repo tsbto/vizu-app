@@ -73,18 +73,17 @@ def okrs_content():
         html.P("Aqui vai o conteúdo do módulo OKRs."),
     ])
 
+from dash import dash_table
+
 def dataframe_content():
     return html.Div([
         html.H2("Data Frame", style={"fontWeight": "bold", "fontFamily": "Arial, sans-serif"}),
-        html.P("Aqui vai o conteúdo do módulo Data Frame."),
-        dash_table.DataTable(
-            id="data-table",
-            style_table={'overflowX': 'auto'},
-            style_cell={'textAlign': 'left', 'padding': '5px'},
-            style_header={'backgroundColor': 'rgb(30, 30, 30)', 'color': 'white', 'fontWeight': 'bold'},
-            style_data={'backgroundColor': 'rgb(50, 50, 50)', 'color': 'white'},
-        ),
+        html.P("Aqui está a visualização da tabela carregada:"),
+        html.Div(id="dataframe-table"),  # Componente que vai receber a tabela
+        html.Br(),
+        dbc.Button("Recarregar Tabela", id="btn-reload-table", color="primary", n_clicks=0),
     ])
+
 
 def insights_content():
     return html.Div([
