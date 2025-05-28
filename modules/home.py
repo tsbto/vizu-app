@@ -7,23 +7,13 @@ def layout():
         "width": "150px",
         "height": "150px",
         "borderRadius": "20px",
-        "backgroundColor": "#333",  # cinza escuro
+        "backgroundColor": "#333",
         "display": "flex",
         "flexDirection": "column",
         "alignItems": "center",
         "justifyContent": "center",
         "cursor": "pointer",
         "margin": "10px",
-    }
-    button_style = {
-        "borderRadius": "20px",
-        "backgroundColor": "#fff",
-        "color": "#000",
-        "fontSize": "12px",
-        "padding": "6px 12px",
-        "border": "none",
-        "marginTop": "30px",
-        "width": "110px",
     }
 
     icons = {
@@ -35,7 +25,7 @@ def layout():
     cards = []
     for key, label in [("bigquery", "BigQuery"), ("snowflake", "Snowflake"), ("csv", "CSV")]:
         card = html.Div([
-            # Título no topo à esquerda
+            # Título no topo à esquerda, em capslock
             html.Div(label.upper(), style={
                 "textAlign": "left",
                 "fontFamily": "Arial, sans-serif",
@@ -43,6 +33,7 @@ def layout():
                 "fontSize": "9px",
                 "color": "#ffffff",
                 "marginBottom": "8px",
+                "width": "100%",  # força o alinhamento à esquerda
             }),
             # Imagem centralizada
             html.Img(src=icons[key], style={
@@ -51,20 +42,21 @@ def layout():
                 "display": "block",
                 "margin": "0 auto",
             }),
-            # Botão "Conectar"
+            # Botão com classe btn-pill, estilo via CSS
             dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, className="btn-pill", style={"marginTop": "30px"}),
-            # Dropdown container
+            # Container do dropdown
             html.Div(id=f"dropdown-{key}-container")
-        ], className="card-custom", id=f"card-{key}")
+        ], className="card-custom", style=card_style, id=f"card-{key}")
         cards.append(card)
-
 
     return html.Div([
         html.H2("Home", style={"fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "20px", "color": "#eee", "marginBottom": "30px"}),
         html.Div(cards, style={"display": "flex", "justifyContent": "center"}),
     ], style={"padding": "30px"})
 
+
 def register_callbacks(app):
+    # Callback que mostra/esconde o dropdown no card clicado
     @app.callback(
         [Output(f"dropdown-{key}-container", "children") for key in ["bigquery", "snowflake", "csv"]],
         [Input(f"btn-{key}", "n_clicks") for key in ["bigquery", "snowflake", "csv"]],
@@ -78,7 +70,8 @@ def register_callbacks(app):
 
         outputs = []
         for key in ["bigquery", "snowflake", "csv"]:
-            if f"btn-{key}" == button_id and btn_clicks[["bigquery", "snowflake", "csv"].index(key)] % 2 == 1:
+            idx = ["bigquery", "snowflake", "csv"].index(key)
+            if f"btn-{key}" == button_id and btn_clicks[idx] % 2 == 1:
                 dropdown = html.Div([
                     dcc.Input(placeholder="Usuário", type="text", style={"marginBottom": "8px", "width": "100%"}),
                     dcc.Input(placeholder="Senha", type="password", style={"marginBottom": "8px", "width": "100%"}),
@@ -88,35 +81,16 @@ def register_callbacks(app):
                 outputs.append(dropdown)
             else:
                 outputs.append("")
-        
         return outputs
-    
-    @app.callback(
-        Output("btn-bigquery", "className"),
-        Input("btn-bigquery", "n_clicks"),
-        prevent_initial_call=True
-    )
-    def toggle_bigquery_class(n_clicks):
-        if n_clicks and n_clicks % 2 != 0:
-            return "btn-pill active"
-        return "btn-pill"
 
-    @app.callback(
-        Output("btn-snowflake", "className"),
-        Input("btn-snowflake", "n_clicks"),
-        prevent_initial_call=True
-    )
-    def toggle_snowflake_class(n_clicks):
-        if n_clicks and n_clicks % 2 != 0:
-            return "btn-pill active"
-        return "btn-pill"
-
-    @app.callback(
-        Output("btn-csv", "className"),
-        Input("btn-csv", "n_clicks"),
-        prevent_initial_call=True
-    )
-    def toggle_csv_class(n_clicks):
-        if n_clicks and n_clicks % 2 != 0:
-            return "btn-pill active"
-        return "btn-pill"
+    # Callback genérico para alternar a classe dos botões entre "btn-pill" e "btn-pill active"
+    for key in ["bigquery", "snowflake", "csv"]:
+        @app.callback(
+            Output(f"btn-{key}", "className"),
+            Input(f"btn-{key}", "n_clicks"),
+            prevent_initial_call=True
+        )
+        def toggle_button_class(n_clicks, key=key):
+            if n_clicks and n_clicks % 2 != 0:
+                return "btn-pill active"
+            return "btn-pill"
