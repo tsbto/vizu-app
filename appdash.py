@@ -58,7 +58,7 @@ def render_page_content(pathname):
     elif pathname == "/okrs":
         return html.H3("Página OKRs - em construção...", style={"color": "#eee"})
     elif pathname == "/insights":
-        return html.H3("Página Insights - em construção...", style={"color": "#eee"})
+        return insights.layout()
     elif pathname == "/querygpt":
         return html.H3("Página QueryGPT - em construção...", style={"color": "#eee"})
     elif pathname == "/upload":  # ROTA NOVA
@@ -75,6 +75,7 @@ def render_page_content(pathname):
 # Registrar callbacks
 home.register_callbacks(app)
 upload.register_callbacks(app, pg_engine=pg_engine)  # passe a engine do Postgres aqui se quiser usar
+insights.register_callbacks(app, engine)
 
 if __name__ == "__main__":
     app.run(debug=True)
