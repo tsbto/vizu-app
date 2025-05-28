@@ -1,4 +1,4 @@
-from dash import Dash
+from dash import Dash, html
 import dash_bootstrap_components as dbc
 from modules import central, dataframe
 
