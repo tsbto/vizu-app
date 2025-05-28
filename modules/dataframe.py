@@ -14,8 +14,10 @@ def layout():
 def register_callbacks(app):
     @app.callback(
         Output("dataframe-table", "children"),
-        Input("stored-data", "data"),
-        Input("btn-reload-table", "n_clicks"),
+        [
+            Input("stored-data", "data"),
+            Input("btn-reload-table", "n_clicks"),
+        ],
         prevent_initial_call=True,
     )
     def render_dataframe_table(stored_data, n_clicks):
