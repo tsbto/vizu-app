@@ -37,7 +37,7 @@ def layout():
         card = html.Div([
             html.Img(src=icons[key], style={"width": "64px", "height": "64px"}),
             html.Div(label, style={"marginTop": "10px", "fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "14px", "color": "#333"}),
-            dbc.Button("Inserir credenciais", id=f"btn-{key}", n_clicks=0, style=button_style),
+            dbc.Button("Conectar", id=f"btn-{key}", n_clicks=0, style=button_style),
             html.Div(id=f"dropdown-{key}-container")
         ], style=card_style, id=f"card-{key}")
         cards.append(card)
