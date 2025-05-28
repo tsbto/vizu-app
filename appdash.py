@@ -78,33 +78,6 @@ app.layout = html.Div([
     sidebar,
     content,
 ])
-@app.callback(
-    Output("output-msg", "children"),
-    [
-        Input("btn-load-bq", "n_clicks"),
-        Input("btn-load-csv", "n_clicks")
-    ],
-    [
-        State("bq-project", "value"),
-        State("bq-dataset", "value"),
-        State("bq-table", "value"),
-        State("bq-json", "contents"),
-        State("upload-csv", "contents"),
-        State("upload-csv", "filename")
-    ],
-    prevent_initial_call=True
-)
-def load_data_callback(n_clicks_bq, n_clicks_csv, bq_project, bq_dataset, bq_table, bq_json, csv_contents, csv_filename):
-    # Placeholder implementation; replace with your actual logic
-    triggered_id = ctx.triggered_id if ctx.triggered_id else None
-    if triggered_id == "btn-load-bq":
-        return "BigQuery load triggered."
-    elif triggered_id == "btn-load-csv":
-        return f"CSV load triggered for file: {csv_filename}"
-    return ""
-
-# Registrar callbacks do módulo central
-central.register_callbacks(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
