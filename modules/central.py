@@ -113,7 +113,7 @@ def register_callbacks(app: dash.Dash):
     ],
     prevent_initial_call=True
 )
-def load_data(bq_clicks, csv_clicks,
+    def load_data(bq_clicks, csv_clicks,
                project_id, dataset_id, table_id, json_contents,
                csv_contents, csv_filename):
     trigger = ctx.triggered_id
