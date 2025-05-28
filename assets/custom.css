@@ -1,6 +1,6 @@
 /* custom.css */
 body {
-    background-color: #1c1c1c;
+    background-color: #282828;
     color: #ffffff;
     font-family: Arial, sans-serif;
 }
@@ -9,7 +9,7 @@ body {
     font-size: 18px;
     font-weight: bold;
     font-family: Arial, sans-serif;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
 }
 
 .sidebar-link {
@@ -71,4 +71,10 @@ h3 {
 .nav-link.active {
     background-color: #fff !important;
     color: #000 !important;
+}
+
+.sidebar-separator {
+    border: none;
+    border-bottom: 1px solid #555;
+    margin: 0 0 20px 0;
 }

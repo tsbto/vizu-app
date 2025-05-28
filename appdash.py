@@ -26,6 +26,7 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.H2("Vizu Dash", style={"fontFamily": "Arial, sans-serif", "fontWeight": "bold", "fontSize": "18px"}),
+        html.Hr(className="sidebar-separator"),
         dbc.Nav(
             [
                 dbc.NavLink("Home", href="/", active="exact", style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
