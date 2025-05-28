@@ -32,7 +32,7 @@ def layout():
                 "fontWeight": "bold",
                 "fontSize": "9px",
                 "color": "#ffffff",
-                "marginBottom": "8px",
+                "marginBottom": "3px",
                 "marginLeft": "30px",
                 "width": "100%",  # força o alinhamento à esquerda
             }),
