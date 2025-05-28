@@ -107,7 +107,7 @@ def render_page_content(pathname):
     elif pathname == "/okrs":
         return okrs_content()
     elif pathname == "/dataframe":
-        return dataframe_content()
+        return dataframe_layout()
     elif pathname == "/insights":
         return insights_content()
     elif pathname == "/querygpt":
