@@ -60,7 +60,7 @@ def render_page_content(pathname):
     elif pathname == "/querygpt":
         return html.H3("Página QueryGPT - em construção...", style={"color": "#eee"})
     elif pathname == "/upload":  # ROTA NOVA
-        return upload.layout
+        return upload.layout()
     else:
         return dbc.Jumbotron(
             [
