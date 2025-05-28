@@ -30,4 +30,4 @@ def display_page(pathname):
         return html.H3("Página inicial - Bem vindo!")
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
