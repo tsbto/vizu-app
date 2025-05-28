@@ -1,6 +1,6 @@
 from dash import Dash, html, dcc, Input, Output, State, ctx
 import dash_bootstrap_components as dbc
-from modules import central  # seu módulo central_conexoes_dash importado como central
+from modules import central
 from data import data_loader
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
@@ -33,10 +33,9 @@ sidebar = html.Div(
     },
 )
 
-# Conteúdo principal onde as páginas serão renderizadas
+# Conteúdo principal
 content = html.Div(id="page-content", style={"marginLeft": "18rem", "padding": "2rem", "color": "white", "fontFamily": "'Courier New', monospace"})
 
-# Funções para conteúdo das páginas
 def home_content():
     return html.Div([
         html.H1("A Vizu é uma proposta inovadora", style={"fontWeight": "bold", "fontFamily": "Arial, sans-serif", "marginBottom": "1rem"}),
@@ -74,24 +73,27 @@ def querygpt_content():
         html.P("Aqui vai o conteúdo do módulo Query GPT."),
     ])
 
-# Mapeia a URL para o conteúdo da página
+app.layout = html.Div([
+    dcc.Location(id="url"),
+    sidebar,
+    content,
+])
 @app.callback(
-    Output("page-content", "children"),
-    Input("url", "pathname")
+    Output("output-msg", "children"),
+    [
+        Input("btn-load-bq", "n_clicks"),
+        Input("btn-load-csv", "n_clicks")
+    ],
+    [
+        State("bq-project", "value"),
+        State("bq-dataset", "value"),
+        State("bq-table", "value"),
+        State("bq-json", "contents"),
+        State("upload-csv", "contents"),
+        State("upload-csv", "filename")
+    ],
+    prevent_initial_call=True
 )
-def render_page_content(pathname):
-    if pathname == "/central":
-        return central.layout()  # Usa o layout do módulo central
-    elif pathname == "/okrs":
-        return okrs_content()
-    elif pathname == "/dataframe":
-        return dataframe_content()
-    elif pathname == "/insights":
-        return insights_content()
-    elif pathname == "/querygpt":
-        return querygpt_content()
-    else:
-        return home_content()
 
 # Registrar callbacks do módulo central
 central.register_callbacks(app)
