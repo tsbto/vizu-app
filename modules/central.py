@@ -1,6 +1,6 @@
 # modules/central_conexoes_dash.py
 import dash
-from dash import html, dcc, Output, Input, State, ctx
+from dash import html, dcc, Output, Input, State, ctx, dash_table 
 import dash_bootstrap_components as dbc
 import pandas as pd
 from google.cloud import bigquery
@@ -121,11 +121,30 @@ def register_callbacks(app: dash.Dash):
             triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
             if triggered_id == "btn-load-bq":
-                # Lógica de carregar BigQuery
+                # Aqui vamos implementar depois o BigQuery
                 return "BigQuery carregado!"
+
             elif triggered_id == "btn-load-csv":
-                # Lógica de carregar CSV
-                return "CSV carregado!"
+                if csv_contents is None:
+                    return "Nenhum arquivo CSV enviado."
+
+                # Decodificar base64
+                content_type, content_string = csv_contents.split(',')
+                decoded = base64.b64decode(content_string)
+                try:
+                    # Ler CSV em DataFrame
+                    df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+                except Exception as e:
+                    return f"Erro ao processar CSV: {str(e)}"
+
+                # Criar tabela para renderizar
+                return dash_table.DataTable(
+                    data=df.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in df.columns],
+                    page_size=10,
+                    style_table={'overflowX': 'auto'},
+                    style_cell={'textAlign': 'left'}
+                )
             else:
                 return "Ação desconhecida."
 
