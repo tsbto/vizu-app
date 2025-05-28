@@ -21,6 +21,7 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def render_dataframe_table(stored_data, n_clicks):
+        print("Callback foi chamado!", stored_data, n_clicks)
         if stored_data is None:
             return html.P("Nenhum dado carregado ainda.", style={"color": "red"})
         
