@@ -142,10 +142,12 @@ def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_cont
 
     if triggered_id == "btn-load-csv":
         if csv_contents is None:
+            print("Nenhum CSV carregado")
             return no_update
         content_type, content_string = csv_contents.split(',')
         decoded = base64.b64decode(content_string)
         df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        print("CSV carregado:\n", df.head())  # <-- Esse print ajuda a ver se está subindo!
         return df.to_json(date_format='iso', orient='split')
 
     elif triggered_id == "btn-load-bq":
