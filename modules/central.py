@@ -1,88 +1,109 @@
-from dash import html, dcc, Input, Output, State, ctx, no_update
+from dash import html, dash_table, Input, Output, State, callback_context as ctx
 import dash_bootstrap_components as dbc
+import pandas as pd
 import base64
 import io
-import pandas as pd
+import json
 
 def layout():
     return html.Div([
-        html.H2("Carregar dados"),
-        dbc.Input(id="bq-project", placeholder="Projeto BigQuery", type="text", style={"marginTop": 5}),
-        dbc.Input(id="bq-dataset", placeholder="Dataset BigQuery", type="text", style={"marginTop": 5}),
-        dbc.Input(id="bq-table", placeholder="Tabela BigQuery", type="text", style={"marginTop": 5}),
-        dcc.Upload(
-            id="bq-json",
-            children=html.Div(['Arraste/Selecione a chave JSON do serviço BigQuery aqui']),
-            style={'border': '1px dashed #ccc', 'padding': '10px', 'marginTop': 10},
-            multiple=False,
-        ),
-        dbc.Button("Carregar do BigQuery", id="btn-load-bq", color="primary", style={"marginTop": 10}),
-        html.Hr(),
+        html.H2("Data Frame", style={"fontWeight": "bold", "fontFamily": "Arial, sans-serif"}),
+        html.P("Aqui está a visualização da tabela carregada:"),
+        
+        # Inputs básicos para carregar dados (exemplo)
+        dbc.Input(id="bq-project", placeholder="BigQuery Project", type="text", style={"marginBottom": "10px"}),
+        dbc.Input(id="bq-dataset", placeholder="BigQuery Dataset", type="text", style={"marginBottom": "10px"}),
+        dbc.Input(id="bq-table", placeholder="BigQuery Table", type="text", style={"marginBottom": "10px"}),
         dcc.Upload(
             id="upload-csv",
-            children=html.Div(['Arraste/Selecione um arquivo CSV aqui']),
-            style={'border': '1px dashed #ccc', 'padding': '10px'},
-            multiple=False,
+            children=html.Div([
+                "Arraste e solte ou ",
+                html.A("selecione um arquivo CSV")
+            ]),
+            style={
+                "width": "100%", "height": "60px", "lineHeight": "60px",
+                "borderWidth": "1px", "borderStyle": "dashed", "borderRadius": "5px",
+                "textAlign": "center", "marginBottom": "10px"
+            },
+            multiple=False
         ),
-        dbc.Button("Carregar CSV", id="btn-load-csv", color="secondary", style={"marginTop": 10}),
+        
+        dbc.Button("Carregar do BigQuery", id="btn-load-bq", color="primary", n_clicks=0, style={"marginRight": "10px"}),
+        dbc.Button("Carregar CSV", id="btn-load-csv", color="secondary", n_clicks=0),
+        
+        html.Br(), html.Br(),
+        
+        html.Div(id="output-msg", style={"color": "red", "fontWeight": "bold"}),
+        
+        html.Div(id="dataframe-table"),
         html.Br(),
-        html.Div(id="output-msg", style={"marginTop": 15}),
-        # Armazena dados carregados em JSON (orient='split')
-        dcc.Store(id="stored-data"),
+        dbc.Button("Recarregar Tabela", id="btn-reload-table", color="success", n_clicks=0),
     ])
 
-def carregar_tabela_bigquery(project, dataset, table, chave_json_bytes):
-    # Aqui entra sua função real para carregar BigQuery com as credenciais
-    # Exemplo fictício:
-    import pandas_gbq
-    import json
-    from google.oauth2 import service_account
-
-    credentials = service_account.Credentials.from_service_account_info(json.loads(chave_json_bytes.decode("utf-8")))
-    query = f"SELECT * FROM `{project}.{dataset}.{table}` LIMIT 1000"
-    df = pandas_gbq.read_gbq(query, project_id=project, credentials=credentials)
-    return df
 
 def register_callbacks(app):
     @app.callback(
         [Output("output-msg", "children"), Output("stored-data", "data")],
         [Input("btn-load-bq", "n_clicks"), Input("btn-load-csv", "n_clicks")],
-        [State("bq-project", "value"),
-         State("bq-dataset", "value"),
-         State("bq-table", "value"),
-         State("bq-json", "contents"),
-         State("upload-csv", "contents"),
-         State("upload-csv", "filename")],
-        prevent_initial_call=True,
+        [
+            State("bq-project", "value"),
+            State("bq-dataset", "value"),
+            State("bq-table", "value"),
+            State("upload-csv", "contents"),
+            State("upload-csv", "filename"),
+        ],
+        prevent_initial_call=True
     )
-    def handle_load_data(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
-        trigger_id = ctx.triggered_id
-
-        if trigger_id == "btn-load-bq":
-            if not all([project, dataset, table, json_contents]):
-                return dbc.Alert("Preencha todos os campos e envie o JSON!", color="danger"), no_update
-            try:
-                content_string = json_contents.split(",")[1]
-                chave_json_bytes = base64.b64decode(content_string)
-
-                df = carregar_tabela_bigquery(project, dataset, table, chave_json_bytes)
-
-                json_data = df.to_json(date_format='iso', orient='split')
-                return dbc.Alert("Tabela carregada do BigQuery com sucesso!", color="success"), json_data
-            except Exception as e:
-                return dbc.Alert(f"Erro ao carregar BigQuery: {e}", color="danger"), no_update
-
-        elif trigger_id == "btn-load-csv":
+    def carregar_dados(btn_load_bq, btn_load_csv, bq_project, bq_dataset, bq_table, csv_contents, csv_filename):
+        trigger = ctx.triggered_id
+        if trigger == "btn-load-bq":
+            # Aqui você insere a lógica para carregar dados do BigQuery (exemplo simples)
+            # Por enquanto, só mockamos um df:
+            if not (bq_project and bq_dataset and bq_table):
+                return "Informe project, dataset e tabela do BQ.", None
+            
+            # Simulação de df (substituir por chamada real do BigQuery)
+            df = pd.DataFrame({
+                "Coluna1": [1, 2, 3],
+                "Coluna2": ["A", "B", "C"]
+            })
+            
+            return f"Dados carregados do BigQuery {bq_project}.{bq_dataset}.{bq_table}", df.to_json(date_format='iso', orient='split')
+        
+        elif trigger == "btn-load-csv":
             if csv_contents is None:
-                return dbc.Alert("Nenhum arquivo CSV enviado!", color="warning"), no_update
+                return "Nenhum arquivo CSV carregado.", None
+            
+            content_type, content_string = csv_contents.split(',')
+            decoded = base64.b64decode(content_string)
             try:
-                content_string = csv_contents.split(",")[1]
-                decoded = base64.b64decode(content_string)
-                df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
-
-                json_data = df.to_json(date_format='iso', orient='split')
-                return dbc.Alert("CSV carregado com sucesso!", color="success"), json_data
+                df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
             except Exception as e:
-                return dbc.Alert(f"Erro ao processar CSV: {e}", color="danger"), no_update
+                return f"Erro ao ler CSV: {str(e)}", None
+            
+            return f"Arquivo CSV '{csv_filename}' carregado com sucesso.", df.to_json(date_format='iso', orient='split')
+        
+        return "Nenhuma ação detectada.", None
 
-        return no_update, no_update
+    @app.callback(
+        Output("dataframe-table", "children"),
+        [Input("stored-data", "data"), Input("btn-reload-table", "n_clicks")],
+        prevent_initial_call=True
+    )
+    def renderizar_tabela(stored_data, n_clicks):
+        if stored_data is None:
+            return html.P("Nenhum dado carregado ainda.", style={"color": "red"})
+        try:
+            df = pd.read_json(stored_data, orient='split')
+        except Exception as e:
+            return html.P(f"Erro ao carregar dados: {str(e)}", style={"color": "red"})
+        
+        table = dash_table.DataTable(
+            data=df.to_dict("records"),
+            columns=[{"name": i, "id": i} for i in df.columns],
+            page_size=10,
+            style_table={"overflowX": "auto"},
+            style_cell={"textAlign": "left", "color": "black", "backgroundColor": "white"},
+            style_header={"backgroundColor": "#1a1a1a", "color": "white", "fontWeight": "bold"},
+        )
+        return table
