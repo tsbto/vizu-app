@@ -91,7 +91,7 @@ def layout():
             ], width=6)
         ]),
         html.Hr(),
-        html.Div(id="output-msg", className="mt-3")
+        html.Div(id="output-msg", className="mt-3",style={"overflowX": "auto"})
     ])
 
 # Callbacks para o módulo
@@ -113,6 +113,7 @@ def register_callbacks(app: dash.Dash):
         prevent_initial_call=True
     )
     def handle_uploads(n_clicks_bq, n_clicks_csv, project, dataset, table, json_contents, csv_contents, csv_filename):
+        print("Callback executado")
         ctx = dash.callback_context
 
         if not ctx.triggered:
