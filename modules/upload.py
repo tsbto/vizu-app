@@ -30,6 +30,7 @@ layout = html.Div([
                 },
                 multiple=False
             ),
+            dbc.Input(id="csv-encoding", placeholder="Codificação (ex: utf-8, latin1)", type="text", style={"marginBottom": "10px"}),
             html.Div(id='output-csv-upload', style={"color": "white", "marginTop": "10px"}),
             html.Div(id='csv-table-container', style={"marginTop": "20px"}),
             html.Div(id='summary-table-container', style={"marginTop": "20px"}),
@@ -55,9 +56,11 @@ def register_callbacks(app, pg_engine):
          Output('summary-table-container', 'children')],
         Input('upload-csv', 'contents'),
         State('upload-csv', 'filename'),
+        State('csv-encoding', 'value'),
         prevent_initial_call=True
     )
-    def parse_csv(contents, filename):
+    def parse_csv(contents, filename, encoding):
+        encoding = encoding or 'utf-8'
         if contents is None:
             return "", "", ""
         if pg_engine is not None:
@@ -66,7 +69,13 @@ def register_callbacks(app, pg_engine):
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         try:
-            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+            try:
+                df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+            except UnicodeDecodeError:
+                return html.Div([
+                    'Erro ao processar o arquivo CSV. Verifique a codificação do arquivo.',
+                    html.P('Tente especificar a codificação correta no campo abaixo.')
+                ], style={"color": "red"}), "", ""
             
             # Salvar no Postgres
             df.to_sql('dados_upload', con=pg_engine, if_exists='replace', index=False)
