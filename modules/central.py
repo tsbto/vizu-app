@@ -6,8 +6,9 @@ import pandas as pd
 from google.cloud import bigquery
 import tempfile
 from modules.db import get_engine
+from data import data_loader
 
-# Função pra carregar dados do BigQuery
+# Função para carregar dados do BigQuery
 def carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_file):
     with tempfile.NamedTemporaryFile(delete=False) as temp_cred_file:
         temp_cred_file.write(chave_json_file)
@@ -22,7 +23,7 @@ def carregar_tabela_bigquery(project_id, dataset_id, table_id, chave_json_file):
 
     return df
 
-# Função pra salvar DataFrame no Postgres
+# Função para salvar DataFrame no Postgres
 def salvar_dataframe(df: pd.DataFrame, nome_tabela: str):
     engine = get_engine()
     df.to_sql(nome_tabela, engine, index=False, if_exists='replace')
@@ -93,7 +94,7 @@ def layout():
         html.Div(id="output-msg", className="mt-3")
     ])
 
-# Callbacks
+# Callbacks para o módulo
 def register_callbacks(app: dash.Dash):
     @app.callback(
         Output("output-msg", "children"),
