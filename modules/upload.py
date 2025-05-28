@@ -3,8 +3,7 @@
 import base64
 import io
 import pandas as pd
-from dash import html, dcc, Input, Output, State, callback
-import dash_table
+from dash import html, dcc, Input, Output, State, callback, dash_table
 import dash_bootstrap_components as dbc
 
 # Layout da página
