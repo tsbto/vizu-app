@@ -58,7 +58,7 @@ def render_page_content(pathname):
     elif pathname == "/okrs":
         return html.H3("Página OKRs - em construção...", style={"color": "#eee"})
     elif pathname == "/insights":
-        return insights.layout()
+        return insights.layout
     elif pathname == "/querygpt":
         return html.H3("Página QueryGPT - em construção...", style={"color": "#eee"})
     elif pathname == "/upload":  # ROTA NOVA
