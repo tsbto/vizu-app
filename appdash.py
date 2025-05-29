@@ -75,7 +75,7 @@ def render_page_content(pathname):
 # Registrar callbacks
 home.register_callbacks(app)
 upload.register_callbacks(app, pg_engine=pg_engine)  # passe a engine do Postgres aqui se quiser usar
-insights.register_callbacks(app, engine)
+insights.register_callbacks(app, pg_engine=pg_engine)
 
 if __name__ == "__main__":
     app.run(debug=True)
