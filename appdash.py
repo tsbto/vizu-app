@@ -3,7 +3,7 @@ from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 from modules import home, okr, insights, querygpt, upload
 from sqlalchemy import create_engine
-from resumo_ia import gerar_resumo_ia  # IMPORTANTE!
+from modules import resumo_ia as gerar_resumo_ia  # IMPORTANTE!
 
 # Engine do Postgres
 pg_engine = create_engine("postgresql://tarsobarreto@localhost:5432/vizu")
