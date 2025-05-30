@@ -1,112 +1,73 @@
-/* custom.css */
-body {
-    background-color: #282828;
-    color: #ffffff;
-    font-family: Arial, sans-serif;
-}
+#css
 
-.sidebar-title {
-    font-size: 18px;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-    margin-bottom: 50px;
-}
-
-.sidebar-link {
-    color: #ffffff !important;
-    font-size: 14px;
-    font-family: Arial, sans-serif;
-}
-
-.sidebar-link:hover {
-    background-color: #333333 !important;
-}
-
-.page-title {
-    font-size: 22px;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-    margin-bottom: 20px;
-}
-
-.card-title {
-    font-size: 16px;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
-    color: #ffffff;
-}
-
-.card-text {
-    font-size: 12px;
+/* Fundo escuro geral */
+body, .dark-container {
+    background-color: #121212;
+    color: white;
     font-family: 'Courier New', monospace;
 }
 
-/* Aumentar o tamanho dos cards */
-.card-custom {
-  min-height: 250px;
-  min-width: 250px;
-  background-color: #1e1e1e;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+/* Tipografia títulos em Arial Bold */
+h1 {
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 40px;
 }
 
-/* Estilo padrão do botão tipo pílula */
-.btn-pill {
-  border-radius: 50px;
-  background-color: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  font-size: 12px;
-  padding: 6px 12px;
-  transition: all 0.3s ease;
-}
-
-/* Quando o botão está ativo (selecionado) */
-.btn-pill.active {
-  background-color: #ffffff;
-  color: #000000;
-  border: 1.5px solid #ffffff;
-}
-
-/* Hover para reforçar a interação */
-.btn-pill:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-/* Sidebar hover cinza escuro */
-.nav-link:hover {
-    background-color: #333 !important;
-    color: #eee !important;
-}
-
-/* Fonte menores */
 h2 {
-    font-size: 20px !important;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 30px;
 }
 
-h3 {
-    font-size: 18px !important;
+
+/* Botão em Arial Bold, capslock e menor */
+.pill-btn {
+    margin-top: 0.5rem;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.55rem;
+    border: 0.5px solid white;
+    border-radius: 999px;
+    background-color: transparent;
+    color: white;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
 }
 
-.nav-link {
-    font-size: 14px !important;
+/* Hover/click invertendo cores */
+.pill-btn:hover,
+.pill-btn:focus,
+.pill-btn:active {
+    background-color: white;
+    color: #121212;
+    border-color: white;
+    text-decoration: none;
 }
 
-/* Você pode adicionar mais customizações aqui */
-/* Página ativa em branco com texto preto */
-
-.nav-link.active {
-    background-color: #fff !important;
-    color: #000 !important;
+/* Cartão maior que a borda, com fundo cinza escuro */
+.custom-card {
+    margin-left: 1rem;
+    background-color: #222221; /* cinza escuro */
+    border: 0px solid white;
+    border-radius: 40px;
+    padding: 1rem; /* maior espaço */
+    margin-bottom: 1rem;
 }
 
-.sidebar-separator {
-    border: none;
-    border-bottom: 2px solid #767676;
-    margin: 0 0 20px 0;
-    margin-bottom: 50px;
+/* Títulos do cartão em Arial Bold */
+.card-title {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+    margin-bottom: 1rem;
+}
+
+/* Texto do cartão em Courier New */
+.card-text {
+    font-family: 'Courier New', monospace;
+    color: white;
+    font-size: 0.7rem
 }
