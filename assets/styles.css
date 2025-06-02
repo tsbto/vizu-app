@@ -1,6 +1,5 @@
-#styles css 
-
-body {
+/* Fundo e fontes gerais */
+body, .dark-container {
     background-color: #121212;
     color: white;
     font-family: 'Courier New', monospace;
@@ -12,11 +11,17 @@ h1, h2 {
     font-weight: bold;
 }
 
-h1 { font-size: 2rem; }
-h2 { font-size: 1.5rem; }
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
 
 /* Botão Pílula */
 .pill-btn {
+    margin-top: 0.5rem;
     font-family: Arial, sans-serif;
     font-weight: bold;
     text-transform: uppercase;
@@ -39,12 +44,33 @@ h2 { font-size: 1.5rem; }
 }
 
 /* Cards */
-.card {
+.card, .custom-card {
     background-color: #222221;
     border: none;
     border-radius: 40px;
     padding: 1rem;
     margin-bottom: 1rem;
+}
+
+/* Cartão específico com margem */
+.custom-card {
+    margin-left: 1rem;
+}
+
+/* Títulos do cartão */
+.card-title {
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+    margin-bottom: 1rem;
+}
+
+/* Texto do cartão */
+.card-text {
+    font-family: 'Courier New', monospace;
+    color: white;
+    font-size: 0.7rem;
 }
 
 /* Inputs e dropdowns */
@@ -77,3 +103,116 @@ input[type="checkbox"] {
 input[type="checkbox"]:checked {
     background-color: white;
 }
+
+.progress-bar {
+  background-color: #333;
+  border-radius: 999px;
+  height: 8px;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background-color: #3498db; /* azul pro progresso */
+  height: 100%;
+  border-radius: 999px;
+}
+
+.minimal-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid white;
+    color: white;
+    width: 100%;
+    outline: none;
+    padding: 0.5rem 0;
+}
+
+.minimal-input:focus {
+    border-bottom: 1px solid #3498db; /* Ou qualquer cor de destaque */
+}
+
+/* Cartões principais */
+.cards-container {
+    display: flex;
+    gap: 20px;
+}
+.card {
+    background-color: #222;
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.card:hover {
+    background-color: #333;
+}
+.card-content {
+    text-align: center;
+}
+.card-title {
+    color: white;
+    margin: 10px 0;
+}
+.card-desc {
+    color: #bbb;
+}
+
+/* Ícone fictício */
+.card-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+/* Card dropdown de inputs */
+.card-dropdown {
+    background-color: #222;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* Inputs minimalistas */
+.minimal-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid white;
+    color: white;
+    margin-bottom: 10px;
+}
+.minimal-input:focus {
+    outline: none;
+    border-bottom: 1px solid #0f0;
+}
+
+/* Botão estilo pílula */
+.pill-btn {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    border-radius: 50px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+.pill-btn:hover {
+    background: white;
+    color: black;
+}
+
+.minimal-card {
+    flex: 1;
+    background-color: #222;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.big-card {
+    background-color: #222;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    marginTop: 20px;
+}
+

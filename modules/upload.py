@@ -1,180 +1,93 @@
+from dash import html, dcc, Input, Output, State, dash_table
+import dash_ag_grid as dag
+import dash_bootstrap_components as dbc
+import pandas as pd
 import base64
 import io
-import pandas as pd
-from dash import html, dcc, Input, Output, State, callback, dash_table
-import dash_bootstrap_components as dbc
 
-# Layout da página
-layout = html.Div([
-    html.H3("Importar CSV e conectar BigQuery", style={"marginBottom": "20px"}),
-    
-    dbc.Row([
-        dbc.Col([
-            dcc.Upload(
-                id='upload-csv',
-                children=html.Div([
-                    'Arraste e solte ou ',
-                    html.A('selecione um arquivo CSV')
-                ]),
-                style={
-                    'width': '100%',
-                    'height': '60px',
-                    'lineHeight': '60px',
-                    'borderWidth': '1px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '5px',
-                    'textAlign': 'center',
-                    'marginBottom': '10px',
-                    'color': '#fff',
-                    'backgroundColor': '#333',
-                },
-                multiple=False
+def layout():
+    return html.Div([
+        html.H3("📁 Upload e Integração de Dados", style={"marginBottom": "20px"}),
+
+        # Cards de conexão (Upload, BigQuery, Snowflake)
+        html.Div([
+            html.Div([
+                html.H5("Upload CSV"),
+                html.P("Envie seus dados em CSV para integração.",),
+                dcc.Upload(
+                    id="upload-data",
+                    children=html.Button("Selecionar arquivo CSV", className="pill-btn"),
+                    multiple=False,
+                    style={"marginTop": "10px"}
+                ),
+            ], className="minimal-card"),
+
+            html.Div([
+                html.H5("BigQuery"),
+                html.P("Conecte-se ao BigQuery para buscar dados."),
+                html.Button("Conectar BigQuery", id="connect-bq-btn", n_clicks=0, className="pill-btn"),
+            ], className="minimal-card"),
+
+            html.Div([
+                html.H5("Snowflake"),
+                html.P("Conecte-se ao Snowflake para buscar dados."),
+                html.Button("Conectar Snowflake", id="connect-sf-btn", n_clicks=0, className="pill-btn"),
+            ], className="minimal-card"),
+        ], style={"display": "flex", "gap": "20px", "marginBottom": "20px"}),
+
+        # Card grandão para preview e resumo estatístico
+        html.Div([
+            html.H4("📊 Tabela de Dados", style={"marginBottom": "10px"}),
+            dag.AgGrid(
+                id="ag-grid-preview",
+                columnSize="sizeToFit",
+                defaultColDef={"editable": True, "resizable": True},
+                style={"height": "300px", "width": "100%", "color": "black"},
             ),
-            dbc.Input(id="csv-encoding", placeholder="Codificação (ex: utf-8, latin1)", type="text", style={"marginBottom": "10px"}),
-            html.Div(id='output-csv-upload', style={"color": "white", "marginTop": "10px"}),
-            html.Div(id='csv-table-container', style={"marginTop": "20px"}),
-            html.Div(id='summary-table-container', style={"marginTop": "20px"}),
-        ], width=6),
-
-        dbc.Col([
-            html.H5("Configurações BigQuery", style={"marginBottom": "10px"}),
-            dbc.Input(id="bq-project", placeholder="Projeto BigQuery", type="text", style={"marginBottom": "10px"}),
-            dbc.Input(id="bq-dataset", placeholder="Dataset", type="text", style={"marginBottom": "10px"}),
-            dbc.Input(id="bq-table", placeholder="Nome da tabela", type="text", style={"marginBottom": "10px"}),
-            dbc.Textarea(id="bq-json", placeholder="Credenciais JSON (cole aqui)", style={"height": "150px", "color": "#000"}),
-            dbc.Button("Enviar para BigQuery", id="btn-send-bq", color="primary", n_clicks=0),
-            html.Div(id="output-bq-status", style={"color": "white", "marginTop": "10px"}),
-        ], width=6)
-    ])
-], style={"padding": "20px", "color": "white"})
-
+            html.H4("📈 Resumo Estatístico", style={"marginTop": "20px"}),
+            html.Pre(id="resumo-estatistico", style={"whiteSpace": "pre-wrap", "color": "white"})
+        ], className="big-card"),
+    ], style={"padding": "20px", "color": "white"})
 
 def register_callbacks(app, pg_engine):
-    @app.callback(
-        [Output('output-csv-upload', 'children'),
-         Output('csv-table-container', 'children'),
-         Output('summary-table-container', 'children')],
-        Input('upload-csv', 'contents'),
-        State('upload-csv', 'filename'),
-        State('csv-encoding', 'value'),
-        prevent_initial_call=True
-    )
-    def parse_csv(contents, filename, encoding):
-        encoding = encoding or 'utf-8'
-        if contents is None:
-            return "", "", ""
-        if pg_engine is None:
-            return html.Div([
-                'Conexão com o banco de dados Postgres não está configurada.'
-            ], style={"color": "red"}), "", ""
-
-        try:
-            # Decodificar CSV
-            _, content_string = contents.split(',')
-            decoded = base64.b64decode(content_string)
-
-            # Ler CSV em chunks para lidar com arquivos grandes
-            chunk_iter = pd.read_csv(io.StringIO(decoded.decode(encoding)), chunksize=10000)
-            df = pd.concat(chunk_iter, ignore_index=True)
-
-            # Salvar no Postgres
-            df.to_sql('dados_upload', con=pg_engine, if_exists='replace', index=False)
-
-            # Resumo estatístico
-            if df.select_dtypes(include=['number']).empty:
-                summary = pd.DataFrame({"Aviso": ["Nenhuma coluna numérica encontrada para gerar resumo estatístico."]})
-            else:
-                summary = df.describe().reset_index()
-
-            # Informações gerais
-            info = html.Div([
-                html.P(f'Arquivo "{filename}" carregado e salvo no Postgres com sucesso!'),
-                html.P(f'Total de linhas: {len(df)}'),
-                html.P(f'Colunas: {", ".join(df.columns)}'),
-            ])
-
-            # Tabela com dados do CSV
-            table = dash_table.DataTable(
-                data=df.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in df.columns],
-                page_size=10,
-                style_table={'overflowX': 'auto', 'backgroundColor': '#333', 'color': '#fff'},
-                style_cell={
-                    'backgroundColor': '#333',
-                    'color': 'white',
-                    'textAlign': 'left',
-                    'minWidth': '100px', 'width': '150px', 'maxWidth': '200px',
-                    'whiteSpace': 'normal'
-                },
-                style_header={
-                    'backgroundColor': '#444',
-                    'fontWeight': 'bold'
-                }
-            )
-
-            # Tabela com resumo estatístico
-            summary_table = dash_table.DataTable(
-                data=summary.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in summary.columns],
-                style_table={'overflowX': 'auto', 'backgroundColor': '#333', 'color': '#fff'},
-                style_cell={
-                    'backgroundColor': '#333',
-                    'color': 'white',
-                    'textAlign': 'left',
-                    'minWidth': '100px', 'width': '150px', 'maxWidth': '200px',
-                    'whiteSpace': 'normal'
-                },
-                style_header={
-                    'backgroundColor': '#555',
-                    'fontWeight': 'bold'
-                }
-            )
-
-            return info, table, summary_table
-
-        except Exception as e:
-            return html.Div([
-                'Erro ao processar o arquivo CSV.',
-                html.Pre(str(e))
-            ], style={"color": "red"}), "", ""
 
     @app.callback(
-        Output('output-bq-status', 'children'),
-        Input('btn-send-bq', 'n_clicks'),
-        State('upload-csv', 'contents'),
-        State('bq-project', 'value'),
-        State('bq-dataset', 'value'),
-        State('bq-table', 'value'),
-        State('bq-json', 'value'),
+        Output("ag-grid-preview", "rowData"),
+        Output("ag-grid-preview", "columnDefs"),
+        Output("resumo-estatistico", "children"),
+        Input("upload-data", "contents"),
+        State("upload-data", "filename"),
         prevent_initial_call=True
     )
-    def send_to_bigquery(n_clicks, contents, project, dataset, table, json_creds):
-        if n_clicks == 0:
-            return ""
-        if not all([contents, project, dataset, table, json_creds]):
-            return "Por favor, preencha todos os campos e faça upload do CSV."
-
-        try:
-            import json
-            from google.cloud import bigquery
-            from google.oauth2 import service_account
-
-            # Decodificar CSV
+    def update_output(contents, filename):
+        if contents:
             content_type, content_string = contents.split(',')
             decoded = base64.b64decode(content_string)
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
 
-            # Credenciais BigQuery
-            creds_dict = json.loads(json_creds)
-            credentials = service_account.Credentials.from_service_account_info(creds_dict)
+            # AG Grid data
+            row_data = df.to_dict("records")
+            column_defs = [{"headerName": col, "field": col} for col in df.columns]
 
-            client = bigquery.Client(credentials=credentials, project=project)
+            # Resumo estatístico
+            resumo = df.describe().to_string()
 
-            table_id = f"{project}.{dataset}.{table}"
-            job = client.load_table_from_dataframe(df, table_id)
-            job.result()  # espera carregar
+            return row_data, column_defs, resumo
+        return [], [], "Nenhum arquivo carregado ainda."
 
-            return f"Dados enviados para BigQuery na tabela {table_id} com sucesso!"
+    # Botões de conexão: só um placeholder por enquanto
+    @app.callback(
+        Output("resumo-estatistico", "children", allow_duplicate=True),
+        Input("connect-bq-btn", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def connect_bigquery(n_clicks):
+        return "Conexão ao BigQuery: Em construção!"
 
-        except Exception as e:
-            return f"Erro ao enviar para BigQuery: {str(e)}"
+    @app.callback(
+        Output("resumo-estatistico", "children", allow_duplicate=True),
+        Input("connect-sf-btn", "n_clicks"),
+        prevent_initial_call=True
+    )
+    def connect_snowflake(n_clicks):
+        return "Conexão ao Snowflake: Em construção!"
