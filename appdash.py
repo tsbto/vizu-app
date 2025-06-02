@@ -31,50 +31,42 @@ sidebar = html.Div([
     ], vertical=True, pills=True, style={"fontFamily": "Courier New, monospace", "fontSize": "14px"}),
 ], style=SIDEBAR_STYLE)
 
-content = html.Div(id="page-content", style=CONTENT_STYLE)
+# Adicionamos a classe fade-in aqui, pro primeiro load já ter transição
+content = html.Div(id="page-content", className="fade-in", style=CONTENT_STYLE)
 
 app.layout = html.Div([
     dcc.Store(id="stored-data", storage_type='session'),  # Store para persistir dados
     dcc.Location(id="url", refresh=False),
     sidebar,
-    content,  # Aqui já está o page-content com o estilo correto
+    content,
 ])
 
-
-# Resumo estatístico de contexto
-resumo_estatistico = """
-Coluna 1: média=100, mediana=98, desvio padrão=5
-Coluna 2: média=200, mediana=198, desvio padrão=10
-Coluna 3: média=50, mediana=52, desvio padrão=2
-"""
-# Isso fica só guardado, **não gera nada sozinho**
-resumo_contexto = resumo_estatistico  # se quiser pode já gerar um resumo aqui
-
+# Callback para renderizar páginas e aplicar fade-in sempre que muda
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
-        return home.layout()
+        children = home.layout()
     elif pathname == "/okrs":
-        return okr.okr_module()
+        children = okr.okr_module()
     elif pathname == "/insights":
-        return insights.layout()
+        children = insights.layout()
     elif pathname == "/querygpt":
-        return querygpt.layout()
+        children = querygpt.layout()
     elif pathname == "/upload":
-        return upload.layout()
+        children = upload.layout()
     else:
-        return dbc.Jumbotron([
+        children = dbc.Jumbotron([
             html.H1("404: Not found", className="text-danger"),
             html.Hr(),
             html.P(f"A página {pathname} não existe."),
         ])
-
-# Callback pra gerar resposta do QueryGPT
-
+    
+    # Sempre coloca a classe fade-in no container de página
+    return html.Div(children, className="fade-in")
 
 # Callbacks extras
 home.register_callbacks(app)
-insights.register_callbacks(app, pg_engine=pg_engine)
+insights.register_callbacks(app)
 querygpt.register_callbacks(app, pg_engine=pg_engine)
 upload.register_callbacks(app, pg_engine=pg_engine)
 
