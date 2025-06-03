@@ -2,7 +2,7 @@ import dash
 from dash import html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 from sqlalchemy import create_engine
-from modules import home, okr, insights, querygpt, upload
+from modules import home, okr, insights, querygpt, upload, bigquery_utils
 from modules.resumo_ia import gerar_resumo_ia  # LLM
 
 # Engine do Postgres
@@ -35,8 +35,8 @@ sidebar = html.Div([
 content = html.Div(id="page-content", className="fade-in", style=CONTENT_STYLE)
 
 app.layout = html.Div([
-    dcc.Store(id="stored-data", storage_type='session'),  # Store para persistir dados
     dcc.Location(id="url", refresh=False),
+    dcc.Store(id="stored-data", storage_type='session'),  # Store para persistir dados
     sidebar,
     content,
 ])

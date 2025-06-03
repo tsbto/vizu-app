@@ -27,7 +27,6 @@ def register_callbacks(app, pg_engine):
 
     @app.callback(
         Output("query-gpt-output", "children"),
-        Output("stored-data", "data"),
         Input("query-gpt-btn", "n_clicks"),
         State("query-gpt-input", "value"),
         State("stored-data", "data"),

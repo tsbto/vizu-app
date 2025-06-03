@@ -30,59 +30,69 @@ def layout():
                     html.Div(id="graphs-container")
                 ]
             )
-        ])
+        ]),
+        dcc.Store(id="llm-summary-store", storage_type="session")  # novo store para guardar o resumo IA
     ], style={"padding": "20px", "color": "white"})
 
 def register_callbacks(app):
     @app.callback(
-        [Output("graphs-container", "children"),
-         Output("llm-summary-container", "children")],
+        [
+            Output("graphs-container", "children"),
+            Output("llm-summary-container", "children"),
+            Output("llm-summary-store", "data")  # novo output para salvar o resumo IA
+        ],
         Input("url", "pathname"),
-        State("stored-data", "data"),  # Usa o dcc.Store
-        prevent_initial_call=True
+        Input("stored-data", "data"),
     )
     def generate_insights(pathname, stored_data):
-        loading_msg = random.choice(loading_messages)
-        if pathname == "/insights" and stored_data:
-            try:
-                project_id = stored_data["project_id"]
-                dataset_id = stored_data["dataset_id"]
-                table_id = stored_data["table_id"]
-                credentials_info = stored_data["json_key"]
+        if pathname != "/insights":
+            # Se não estiver na página insights, limpa output
+            return [], "", ""
 
-                import json
-                credentials_dict = json.loads(credentials_info)
-                credentials = service_account.Credentials.from_service_account_info(credentials_dict)
-                client = bigquery.Client(credentials=credentials, project=project_id)
+        if not stored_data:
+            no_data_msg = "Nenhum dado carregado para gerar insights. Por favor, faça upload ou conecte ao BigQuery."
+            return html.Div(no_data_msg, style={"color": "orange"}), html.Div(no_data_msg, style={"color": "orange"}), ""
 
-                query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
-                df = client.query(query).to_dataframe()
-            except Exception as e:
-                error_msg = f"Erro ao carregar dados: {str(e)}"
-                return html.Div(error_msg, style={"color": "red"}), html.Div(error_msg, style={"color": "red"})
+        try:
+            import pandas as pd
+            import json
 
-            if df.empty:
-                no_data_msg = "Nenhum dado disponível. Por favor, carregue dados para gerar insights."
-                return html.Div(no_data_msg, style={"color": "orange"}), html.Div(no_data_msg, style={"color": "orange"})
+            # Converte JSON salvo no dcc.Store em dataframe
+            df = pd.read_json(stored_data, orient="split")
 
-            graphs = []
-            cat_cols = df.select_dtypes(include=["object", "category"]).columns
-            for col in cat_cols:
-                if df[col].nunique() < 20:
-                    fig = px.histogram(df, x=col, title=f"Distribuição de {col}")
-                    graphs.append(dcc.Graph(figure=fig))
+        except Exception as e:
+            error_msg = f"Erro ao processar dados armazenados: {str(e)}"
+            return html.Div(error_msg, style={"color": "red"}), html.Div(error_msg, style={"color": "red"}), ""
 
-            num_cols = df.select_dtypes(include=["number"]).columns
-            for col in num_cols:
-                fig = px.histogram(df, x=col, nbins=30, title=f"Histograma de {col}")
+        if df.empty:
+            no_data_msg = "O conjunto de dados está vazio."
+            return html.Div(no_data_msg, style={"color": "orange"}), html.Div(no_data_msg, style={"color": "orange"}), ""
+
+        # Cria gráficos
+        graphs = []
+        import plotly.express as px
+        cat_cols = df.select_dtypes(include=["object", "category"]).columns
+        for col in cat_cols:
+            if df[col].nunique() < 20:
+                fig = px.histogram(df, x=col, title=f"Distribuição de {col}")
                 graphs.append(dcc.Graph(figure=fig))
 
-            resumo_estatistico = df.describe(include="all").to_string()
-            llm_summary = resumo_ia.gerar_resumo_ia(resumo_estatistico, model_provider="together")
+        num_cols = df.select_dtypes(include=["number"]).columns
+        for col in num_cols:
+            fig = px.histogram(df, x=col, nbins=30, title=f"Histograma de {col}")
+            graphs.append(dcc.Graph(figure=fig))
 
-            return graphs, html.Div([
+        # resumo estatístico bruto
+        resumo_estatistico = df.describe(include="all").to_string()
+
+        # usa sua função de resumo IA (presumo que retorna string)
+        llm_summary = resumo_ia.gerar_resumo_ia(resumo_estatistico, model_provider="together")
+
+        return (
+            graphs,
+            html.Div([
                 html.H5("🤖 Resumo Gerado por IA"),
                 html.P(llm_summary)
-            ])
-        else:
-            return [], ""
+            ]),
+            llm_summary  # salva no novo dcc.Store (session)
+        )
