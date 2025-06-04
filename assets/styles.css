@@ -1,6 +1,6 @@
 /* Fundo e fontes gerais */
 body, .dark-container {
-    background-color: #121212;
+    background-color: #212121;
     color: white;
     font-family: 'Courier New', monospace;
 }
@@ -45,7 +45,7 @@ h2 {
 
 /* Cards */
 .card, .custom-card {
-    background-color: #222221;
+    background-color: #333;
     border: none;
     border-radius: 40px;
     padding: 1rem;
@@ -70,7 +70,7 @@ h2 {
 .card-text {
     font-family: 'Courier New', monospace;
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.3rem;
 }
 
 /* Inputs e dropdowns */
@@ -139,7 +139,7 @@ input[type="checkbox"]:checked {
     gap: 20px;
 }
 .card {
-    background-color: #222;
+    background-color: #333;
     border-radius: 12px;
     padding: 20px;
     flex: 1;
@@ -147,7 +147,7 @@ input[type="checkbox"]:checked {
     transition: background-color 0.3s;
 }
 .card:hover {
-    background-color: #333;
+    background-color: #444;
 }
 .card-content {
     text-align: center;
@@ -202,14 +202,18 @@ input[type="checkbox"]:checked {
 
 .minimal-card {
     flex: 1;
-    background-color: #222;
+    background-color: #333;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+.minimal-card:hover {
+    background-color: #444;
+}
+
 .big-card {
-    background-color: #222;
+    background-color: #333;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -239,4 +243,6 @@ input[type="checkbox"]:checked {
     opacity: 0;
   }
 }
-
+.titulo-arial {
+    font-family: Arial, sans-serif !important;
+}

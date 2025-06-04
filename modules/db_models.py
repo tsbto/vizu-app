@@ -1,6 +1,4 @@
-# modules/db_models.py
-
-from sqlalchemy import Column, Integer, String, DateTime, Float, JSON, MetaData, Table
+from sqlalchemy import Column, Integer, String, DateTime, JSON, MetaData, Table
 from modules.db import get_engine
 
 metadata = MetaData()

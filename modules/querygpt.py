@@ -11,7 +11,8 @@ Coluna 3: média=50, mediana=52, desvio padrão=2
 
 def layout():
     return html.Div([
-        html.H3("🤖 QueryGPT com Contexto de Negócio", style={"marginBottom": "20px"}),
+        dcc.Store(id="stored-data", storage_type="session"),
+        html.H3("🤖 QueryGPT", className="titulo-arial", style={"fontFamily": "Arial, sans-serif","fontSize": "34px", "fontStyle": "normal", "fontWeight": "bold", "marginBottom": "20px"}),
 
         html.P("Digite sua pergunta para a IA. O contexto estatístico será usado automaticamente!", style={"color": "#bbb"}),
 
@@ -33,29 +34,27 @@ def register_callbacks(app, pg_engine):
         prevent_initial_call=True
     )
     def gerar_resposta(n_clicks, pergunta, stored):
-        if not stored:
-            stored = {}
-
         if not pergunta:
-            return "", stored
+            return ""
 
         # Junta a pergunta com o contexto estatístico
         prompt = f"Contexto do negócio:\n{resumo_contexto}\n\nPergunta do usuário:\n{pergunta}"
 
         # Gera a resposta final usando a IA
         resposta = gerar_resumo_ia(prompt, model_provider="together")  # ou "openai"
-        stored["querygpt_pergunta"] = pergunta
-        stored["querygpt_resposta"] = resposta
 
-        return resposta, stored
+        # Se quiser salvar a pergunta e resposta, crie um novo dict (não tente salvar em stored)
+        # Exemplo: salvar em outro dcc.Store se quiser persistir
+
+        return resposta
+
+    # Se quiser preencher o input com a última pergunta, use um dcc.Store separado para isso
 
     @app.callback(
         Output("query-gpt-input", "value"),
         Input("stored-data", "data"),
     )
     def preencher_input(stored):
-        if stored and "querygpt_pergunta" in stored:
-            return stored["querygpt_pergunta"]
         return ""
 
     # ⚠️ Removi o outro callback duplicado que usava "query-gpt-output"
